@@ -1,0 +1,4 @@
+/* App.css — reset only, styles live in index.css and component CSS */
+* {
+  box-sizing: border-box;
+}
