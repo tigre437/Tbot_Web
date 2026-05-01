@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Navbar from './components/Navbar'
 import Landing from './pages/Landing'
@@ -15,6 +16,18 @@ function ProtectedRoute({ children }) {
 }
 
 function AppRoutes() {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('code')
+    if (code) {
+      // Clean query and move to hash route
+      window.history.replaceState({}, document.title, window.location.pathname)
+      navigate(`/auth/callback?code=${code}`, { replace: true })
+    }
+  }, [navigate])
+
   return (
     <>
       <Navbar />
