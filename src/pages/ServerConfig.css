@@ -4,6 +4,11 @@
     padding-top: 70px;
 }
 
+.sc .container {
+    max-width: 1400px;
+    width: 100%;
+}
+
 /* Loading */
 .sc-loading {
     min-height: 100vh;
@@ -87,9 +92,9 @@
 /* Body layout */
 .sc__body {
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 220px 1fr;
     gap: 1.5rem;
-    padding: 2rem 1.5rem;
+    padding: 2rem 1rem;
     align-items: start;
 }
 
@@ -98,7 +103,7 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 0.5rem;
+    padding: 0.35rem;
     position: sticky;
     top: 90px;
 }
