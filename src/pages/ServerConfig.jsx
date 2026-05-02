@@ -1021,10 +1021,10 @@ function AutorolesConfig({ guildId, roles, channels }) {
 
 // ─── WELCOME MODULE ───────────────────────────────────────────────────────────
 function WelcomeConfig({ guildId, channels }) {
-    const [config, setConfig] = useState({ enabled: true, tipo: 'canal', canal_id: '', mensaje: '' })
+    const [tab, setTab] = useState('general')
+    const [config, setConfig] = useState({ enabled: true, tipo: 'canal', canal_id: '', mensaje: '', image_enabled: true })
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
-    const [showStudio, setShowStudio] = useState(false)
     const [toast, showToast] = useToast()
     const textareaRef = useRef(null)
     const textChannels = channels?.text || []
@@ -1033,7 +1033,13 @@ function WelcomeConfig({ guildId, channels }) {
         api.get(`/servers/${guildId}/welcome`)
             .then(res => {
                 const d = res.data
-                setConfig({ enabled: d.enabled ?? true, tipo: d.tipo || 'canal', canal_id: d.canal_id ? String(d.canal_id) : '', mensaje: d.mensaje || '' })
+                setConfig({ 
+                    enabled: d.enabled ?? true, 
+                    tipo: d.tipo || 'canal', 
+                    canal_id: d.canal_id ? String(d.canal_id) : '', 
+                    mensaje: d.mensaje || '',
+                    image_enabled: d.image_enabled ?? true
+                })
             })
             .catch(() => { })
             .finally(() => setLoading(false))
@@ -1059,73 +1065,89 @@ function WelcomeConfig({ guildId, channels }) {
     return (
         <div className="mod-section">
             <Toast toast={toast} />
-            <div className="mod-block">
-                <label className="config-toggle">
-                    <div>
-                        <span style={{ fontWeight: 600 }}>Bienvenida activa</span>
-                        <p className="mod-hint" style={{ margin: 0 }}>Activa o desactiva el mensaje de bienvenida.</p>
-                    </div>
-                    <button type="button" className={`toggle-btn ${config.enabled ? 'toggle-btn--on' : ''}`} onClick={() => setConfig(p => ({ ...p, enabled: !p.enabled }))}>
-                        {config.enabled ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
-                    </button>
-                </label>
-            </div>
-            <div className="mod-block">
-                <h4 className="config-panel__section-title">Enviar por</h4>
-                <div className="form-radio-group" style={{ marginBottom: '1rem' }}>
-                    {[['canal', '📢 Canal de texto'], ['dm', '💬 Mensaje privado (DM)']].map(([val, lbl]) => (
-                        <button key={val} type="button" className={`form-radio ${config.tipo === val ? 'form-radio--active' : ''}`} onClick={() => setConfig(p => ({ ...p, tipo: val }))}>
-                            {lbl}
-                        </button>
-                    ))}
-                </div>
-                {config.tipo === 'canal' && (
-                    <div className="form-field">
-                        <label>Canal de bienvenida</label>
-                        <select className="config-select" value={config.canal_id} onChange={e => setConfig(p => ({ ...p, canal_id: e.target.value }))}>
-                            <option value="">Selecciona un canal...</option>
-                            {textChannels.map(c => <option key={c.id} value={c.id}># {c.name}</option>)}
-                        </select>
-                    </div>
-                )}
-            </div>
-            <div className="mod-block">
-                <div className="mod-block__header">
-                    <h4 className="config-panel__section-title" style={{ margin: 0 }}>Tarjeta de imagen</h4>
-                    <button className="btn btn-secondary btn-sm" onClick={() => setShowStudio(true)}>
-                        <Sparkles size={14} /> Arrival Studio
-                    </button>
-                </div>
-                <p className="mod-hint" style={{ marginBottom: '1rem' }}>Diseña una tarjeta personalizada que se enviará junto al mensaje.</p>
-                
-                <div className="welcome-preview">
-                    <span className="welcome-preview__label"><img src={logoImg} alt="Logo" /> Vista previa del mensaje</span>
-                    <p className="welcome-preview__text">
-                        {config.mensaje.replace('{{user}}', '@TBot').replace('{{server}}', 'Tu Servidor').replace('{{members}}', '1.2k').replace('{{nombre_canal}}', '#general')}
-                    </p>
-                </div>
+
+            <div className="mod-tabs">
+                <button className={`mod-tab ${tab === 'general' ? 'mod-tab--active' : ''}`} onClick={() => setTab('general')}>
+                    <MessageSquare size={14} /> General
+                </button>
+                <button className={`mod-tab ${tab === 'studio' ? 'mod-tab--active' : ''}`} onClick={() => setTab('studio')}>
+                    <Sparkles size={14} /> Arrival Studio
+                </button>
             </div>
 
-            {showStudio && (
-                <div className="studio-modal">
-                    <div className="studio-modal__content">
-                        <div className="studio-modal__header">
-                            <div className="studio-modal__title">
-                                <Sparkles size={20} className="gradient-text" />
-                                <h3>Arrival Studio</h3>
+            {tab === 'general' ? (
+                <>
+                    <div className="mod-block">
+                        <label className="config-toggle">
+                            <div>
+                                <span style={{ fontWeight: 600 }}>Bienvenida activa</span>
+                                <p className="mod-hint" style={{ margin: 0 }}>Activa o desactiva el mensaje de bienvenida.</p>
                             </div>
-                            <button className="btn btn-secondary btn-sm" onClick={() => setShowStudio(false)}>
-                                <X size={18} /> Cerrar Editor
+                            <button type="button" className={`toggle-btn ${config.enabled ? 'toggle-btn--on' : ''}`} onClick={() => setConfig(p => ({ ...p, enabled: !p.enabled }))}>
+                                {config.enabled ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
                             </button>
-                        </div>
-                        <ArrivalStudio />
+                        </label>
                     </div>
+                    <div className="mod-block">
+                        <h4 className="config-panel__section-title">Enviar por</h4>
+                        <div className="form-radio-group" style={{ marginBottom: '1rem' }}>
+                            {[['canal', '📢 Canal de texto'], ['dm', '💬 Mensaje privado (DM)']].map(([val, lbl]) => (
+                                <button key={val} type="button" className={`form-radio ${config.tipo === val ? 'form-radio--active' : ''}`} onClick={() => setConfig(p => ({ ...p, tipo: val }))}>
+                                    {lbl}
+                                </button>
+                            ))}
+                        </div>
+                        {config.tipo === 'canal' && (
+                            <div className="form-field">
+                                <label>Canal de bienvenida</label>
+                                <select className="config-select" value={config.canal_id} onChange={e => setConfig(p => ({ ...p, canal_id: e.target.value }))}>
+                                    <option value="">Selecciona un canal...</option>
+                                    {textChannels.map(c => <option key={c.id} value={c.id}># {c.name}</option>)}
+                                </select>
+                            </div>
+                        )}
+                    </div>
+                    <div className="mod-block">
+                        <div className="mod-block__header">
+                            <h4 className="config-panel__section-title" style={{ margin: 0 }}>Tarjeta de imagen</h4>
+                            <div className="mod-switch">
+                                <label className="switch">
+                                    <input type="checkbox" checked={config.image_enabled} onChange={e => setConfig(p => ({ ...p, image_enabled: e.target.checked }))} />
+                                    <span className="slider round"></span>
+                                </label>
+                                <span className="switch-label">{config.image_enabled ? 'Activada' : 'Desactivada'}</span>
+                            </div>
+                        </div>
+                        <p className="mod-hint" style={{ marginBottom: '1rem' }}>Si está activada, se enviará una imagen de bienvenida junto al mensaje.</p>
+                        
+                        <div className="welcome-preview">
+                            <span className="welcome-preview__label"><img src={logoImg} alt="Logo" /> Vista previa del mensaje</span>
+                            <p className="welcome-preview__text">
+                                {config.mensaje.replace('{{user}}', '@TBot').replace('{{server}}', 'Tu Servidor').replace('{{members}}', '1.2k').replace('{{nombre_canal}}', '#general')}
+                            </p>
+                        </div>
+                    </div>
+
+                    <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+                        {saving ? <><Loader2 size={15} className="spin" /> Guardando...</> : <><Save size={15} /> Guardar bienvenida</>}
+                    </button>
+                </>
+            ) : (
+                <div style={{ marginTop: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <div>
+                            <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <Sparkles size={20} className="gradient-text" /> Arrival Studio
+                            </h3>
+                            <p className="mod-hint" style={{ margin: '0.2rem 0 0' }}>Diseña la tarjeta de imagen que se enviará con la bienvenida.</p>
+                        </div>
+                        <button className="btn btn-primary btn-sm" onClick={handleSave} disabled={saving}>
+                            {saving ? <><Loader2 size={14} className="spin" /> Guardando...</> : <><Save size={14} /> Guardar Cambios</>}
+                        </button>
+                    </div>
+                    <ArrivalStudio />
                 </div>
             )}
-
-            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                {saving ? <><Loader2 size={15} className="spin" /> Guardando...</> : <><Save size={15} /> Guardar bienvenida</>}
-            </button>
         </div>
     )
 }
