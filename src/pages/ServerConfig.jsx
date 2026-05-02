@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import api from '../utils/api'
 import logoImg from '../assets/logo256.png'
+import ArrivalStudio from '../components/ArrivalStudio'
 import './ServerConfig.css'
 
 const MODULES = [
@@ -1023,6 +1024,7 @@ function WelcomeConfig({ guildId, channels }) {
     const [config, setConfig] = useState({ enabled: true, tipo: 'canal', canal_id: '', mensaje: '' })
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+    const [showStudio, setShowStudio] = useState(false)
     const [toast, showToast] = useToast()
     const textareaRef = useRef(null)
     const textChannels = channels?.text || []
@@ -1088,35 +1090,39 @@ function WelcomeConfig({ guildId, channels }) {
                 )}
             </div>
             <div className="mod-block">
-                <h4 className="config-panel__section-title">Mensaje de bienvenida</h4>
-                <div className="welcome-vars">
-                    <span className="welcome-vars__label">Insertar etiqueta:</span>
-                    {WELCOME_VARS.map(v => (
-                        <Tooltip key={v.tag} text={v.desc}>
-                            <button type="button" className="welcome-var-chip" onClick={() => insertTag(v.tag)}>
-                                <code>{v.tag}</code>
-                                <span className="welcome-var-chip__name">{v.label}</span>
-                            </button>
-                        </Tooltip>
-                    ))}
+                <div className="mod-block__header">
+                    <h4 className="config-panel__section-title" style={{ margin: 0 }}>Tarjeta de imagen</h4>
+                    <button className="btn btn-secondary btn-sm" onClick={() => setShowStudio(true)}>
+                        <Sparkles size={14} /> Arrival Studio
+                    </button>
                 </div>
-                <div className="form-field__label-row" style={{ marginBottom: '0.4rem' }}>
-                    <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Contenido</span>
-                    <CharCounter current={config.mensaje.length} max={EMBED_LIMITS.message} />
+                <p className="mod-hint" style={{ marginBottom: '1rem' }}>Diseña una tarjeta personalizada que se enviará junto al mensaje.</p>
+                
+                <div className="welcome-preview">
+                    <span className="welcome-preview__label"><img src={logoImg} alt="Logo" /> Vista previa del mensaje</span>
+                    <p className="welcome-preview__text">
+                        {config.mensaje.replace('{{user}}', '@TBot').replace('{{server}}', 'Tu Servidor').replace('{{members}}', '1.2k').replace('{{nombre_canal}}', '#general')}
+                    </p>
                 </div>
-                <textarea ref={textareaRef} className="config-textarea" rows={5} value={config.mensaje}
-                    maxLength={EMBED_LIMITS.message}
-                    onChange={e => setConfig(p => ({ ...p, mensaje: e.target.value }))}
-                    placeholder="¡Bienvenido {{user}} al servidor!" />
-                {config.mensaje && (
-                    <div className="welcome-preview">
-                        <span className="welcome-preview__label"><img src={logoImg} alt="Logo" /> Vista previa</span>
-                        <p className="welcome-preview__text">
-                            {config.mensaje.replace('{{user}}', '@TBot').replace('{{server}}', 'Tu Servidor').replace('{{members}}', '1.2k').replace('{{nombre_canal}}', '#general')}
-                        </p>
-                    </div>
-                )}
             </div>
+
+            {showStudio && (
+                <div className="studio-modal">
+                    <div className="studio-modal__content">
+                        <div className="studio-modal__header">
+                            <div className="studio-modal__title">
+                                <Sparkles size={20} className="gradient-text" />
+                                <h3>Arrival Studio</h3>
+                            </div>
+                            <button className="btn btn-secondary btn-sm" onClick={() => setShowStudio(false)}>
+                                <X size={18} /> Cerrar Editor
+                            </button>
+                        </div>
+                        <ArrivalStudio />
+                    </div>
+                </div>
+            )}
+
             <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
                 {saving ? <><Loader2 size={15} className="spin" /> Guardando...</> : <><Save size={15} /> Guardar bienvenida</>}
             </button>
