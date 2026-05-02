@@ -1108,6 +1108,29 @@ function WelcomeConfig({ guildId, channels }) {
                         )}
                     </div>
                     <div className="mod-block">
+                        <h4 className="config-panel__section-title">Mensaje de bienvenida</h4>
+                        <div className="welcome-vars">
+                            <span className="welcome-vars__label">Insertar etiqueta:</span>
+                            {WELCOME_VARS.map(v => (
+                                <Tooltip key={v.tag} text={v.desc}>
+                                    <button type="button" className="welcome-var-chip" onClick={() => insertTag(v.tag)}>
+                                        <code>{v.tag}</code>
+                                        <span className="welcome-var-chip__name">{v.label}</span>
+                                    </button>
+                                </Tooltip>
+                            ))}
+                        </div>
+                        <div className="form-field__label-row" style={{ marginBottom: '0.4rem' }}>
+                            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Contenido</span>
+                            <CharCounter current={config.mensaje.length} max={EMBED_LIMITS.message} />
+                        </div>
+                        <textarea ref={textareaRef} className="config-textarea" rows={5} value={config.mensaje}
+                            maxLength={EMBED_LIMITS.message}
+                            onChange={e => setConfig(p => ({ ...p, mensaje: e.target.value }))}
+                            placeholder="¡Bienvenido {{user}} al servidor!" />
+                    </div>
+                    
+                    <div className="mod-block">
                         <div className="mod-block__header">
                             <h4 className="config-panel__section-title" style={{ margin: 0 }}>Tarjeta de imagen</h4>
                             <div className="mod-switch">
@@ -1123,7 +1146,7 @@ function WelcomeConfig({ guildId, channels }) {
                         <div className="welcome-preview">
                             <span className="welcome-preview__label"><img src={logoImg} alt="Logo" /> Vista previa del mensaje</span>
                             <p className="welcome-preview__text">
-                                {config.mensaje.replace('{{user}}', '@TBot').replace('{{server}}', 'Tu Servidor').replace('{{members}}', '1.2k').replace('{{nombre_canal}}', '#general')}
+                                {config.mensaje ? config.mensaje.replaceAll('{{user}}', '@TBot').replaceAll('{{server}}', 'Tu Servidor').replaceAll('{{members}}', '1.2k').replaceAll('{{nombre_canal}}', '#general') : '¡Bienvenido!'}
                             </p>
                         </div>
                     </div>

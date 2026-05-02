@@ -1,9 +1,14 @@
 .as-container {
-    display: grid;
-    grid-template-columns: 380px 1fr;
+    display: flex;
+    flex-direction: row;
     gap: 1.5rem;
-    height: calc(100vh - 280px);
     min-height: 700px;
+}
+
+@media (max-width: 1100px) {
+    .as-container {
+        flex-direction: column;
+    }
 }
 
 /* --- LEFT SIDE: CONFIG --- */
@@ -14,6 +19,15 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    width: 380px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 1100px) {
+    .as-sidebar {
+        width: 100%;
+        max-height: 400px;
+    }
 }
 
 .as-sidebar__header {
@@ -138,6 +152,8 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    flex: 1;
+    min-width: 0; /* Prevents flex blowout */
 }
 
 .as-canvas-wrap {
@@ -145,10 +161,8 @@
     border-radius: 12px;
     padding: 2rem;
     display: flex;
-    justify-content: center;
-    align-items: center;
     position: relative;
-    overflow: hidden;
+    overflow: auto; /* Allow scrolling both ways if needed */
     border: 1px solid var(--border);
 }
 
@@ -160,6 +174,8 @@
     position: relative;
     overflow: hidden;
     box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    margin: auto; /* Replaces flex center to prevent clipping */
+    flex-shrink: 0; /* Ensures it doesn't shrink in flex container */
 }
 
 /* --- LAYERS EDITOR --- */
