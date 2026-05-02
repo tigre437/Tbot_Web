@@ -39,8 +39,8 @@ export default function Navbar() {
 
                 {/* Desktop Nav Links */}
                 <ul className="navbar__links">
-                    <li><a href="/#features" className="navbar__link">Funciones</a></li>
-                    <li><a href="/#pricing" className="navbar__link">Planes</a></li>
+                    <li><a href="#features" className="navbar__link">Funciones</a></li>
+                    <li><a href="#pricing" className="navbar__link">Planes</a></li>
                     {user && (
                         <>
                             <li>
@@ -107,8 +107,8 @@ export default function Navbar() {
             {/* Mobile Menu */}
             {menuOpen && (
                 <div className="navbar__mobile-menu glass">
-                    <a href="/#features" className="navbar__mobile-link">Funciones</a>
-                    <a href="/#pricing" className="navbar__mobile-link">Planes</a>
+                    <a href="#features" className="navbar__mobile-link">Funciones</a>
+                    <a href="#pricing" className="navbar__mobile-link">Planes</a>
                     {user && (
                         <>
                             <Link to="/dashboard" className="navbar__mobile-link">Dashboard</Link>

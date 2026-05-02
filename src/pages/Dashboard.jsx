@@ -134,9 +134,16 @@ export default function Dashboard() {
 
     useEffect(() => { fetchServers() }, [])
 
-    const filtered = servers.filter(s =>
-        s.name.toLowerCase().includes(search.toLowerCase())
-    )
+    const filtered = servers
+        .filter(s => s.name.toLowerCase().includes(search.toLowerCase()))
+        .sort((a, b) => {
+            // Prioritize servers with the bot online
+            if (a.botOnline !== b.botOnline) {
+                return a.botOnline ? -1 : 1
+            }
+            // Secondary sort: Alphabetical
+            return a.name.localeCompare(b.name)
+        })
 
     const online = servers.filter(s => s.botOnline).length
 

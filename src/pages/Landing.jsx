@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
     Ticket, Shield, Bell, Mic2, MessageSquare, Users,
@@ -38,9 +39,9 @@ function Hero() {
 
                 <div className="hero__cta">
                     {user ? (
-                        <a href="/dashboard" className="btn btn-primary btn-lg">
+                        <Link to="/dashboard" className="btn btn-primary btn-lg">
                             Ir al Dashboard <ArrowRight size={18} />
-                        </a>
+                        </Link>
                     ) : (
                         <button onClick={login} className="btn btn-primary btn-lg hero__discord-btn">
                             <svg width="22" height="22" viewBox="0 0 71 55" fill="white" style={{ flexShrink: 0 }}>
