@@ -218,9 +218,11 @@ function useToast() {
 }
 
 // ─── TRANSCRIPTS LIST ──────────────────────────────────────────────────────────
-function TranscriptsList({ guildId }) {
+function TranscriptsList({ guildId, panels = [] }) {
     const [transcripts, setTranscripts] = useState([])
     const [loading, setLoading] = useState(true)
+    const [search, setSearch] = useState('')
+    const [filterPanel, setFilterPanel] = useState('')
 
     useEffect(() => {
         api.get(`/servers/${guildId}/transcripts`)
@@ -233,28 +235,67 @@ function TranscriptsList({ guildId }) {
         window.open(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/transcripts/${id}`, '_blank')
     }
 
+    const filtered = transcripts.filter(t => {
+        const matchesSearch = t.ticket_name.toLowerCase().includes(search.toLowerCase()) || 
+                              t.author_id.includes(search) ||
+                              (t.closed_by_name || '').toLowerCase().includes(search.toLowerCase())
+        const matchesPanel = !filterPanel || t.panel_id === filterPanel
+        return matchesSearch && matchesPanel
+    })
+
     if (loading) return <div className="mod-loading"><Loader2 size={20} className="spin" /> Cargando transcripciones...</div>
-    if (transcripts.length === 0) return <div className="mod-empty"><Bot size={32} style={{ opacity: 0.3 }} /><p>No hay transcripciones guardadas aún.</p></div>
 
     return (
-        <div className="panel-list">
-            {transcripts.map(t => (
-                <div key={t.id} className="panel-item">
-                    <div className="panel-item__icon" style={{ background: 'rgba(235, 69, 158, 0.12)', color: '#EB459E' }}><Bot size={18} /></div>
-                    <div className="panel-item__info">
-                        <span className="panel-item__title">Ticket: {t.ticket_name}</span>
-                        <span className="panel-item__meta">
-                            <span className="badge badge-blurple" style={{ fontSize: '0.65rem' }}>🎫 {t.author_id}</span>
-                            <span className="panel-item__ch">Cerrado por: {t.closed_by_name}</span>
-                            <span className="panel-item__counter">📅 {new Date(t.created_at).toLocaleDateString()}</span>
-                        </span>
-                    </div>
-                    <button className="btn btn-secondary btn-sm" onClick={() => viewTranscript(t.id)}>
-                        Ver chat
-                    </button>
+        <>
+            <div className="transcripts-header">
+                <div className="search-input-wrap">
+                    <Star size={16} />
+                    <input 
+                        type="text" 
+                        className="config-input" 
+                        placeholder="Buscar por ticket, ID usuario o moderador..." 
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                    />
                 </div>
-            ))}
-        </div>
+                <select 
+                    className="config-select transcript-filter" 
+                    value={filterPanel} 
+                    onChange={e => setFilterPanel(e.target.value)}
+                >
+                    <option value="">Todos los paneles</option>
+                    {panels.map(p => (
+                        <option key={p.id_panel} value={p.id_panel}>{p.ticket_title}</option>
+                    ))}
+                </select>
+            </div>
+
+            {filtered.length === 0 ? (
+                <div className="mod-empty">
+                    <Bot size={32} style={{ opacity: 0.3 }} />
+                    <p>{transcripts.length === 0 ? 'No hay transcripciones guardadas aún.' : 'No se encontraron resultados para tu búsqueda.'}</p>
+                </div>
+            ) : (
+                <div className="panel-list">
+                    {filtered.map(t => (
+                        <div key={t.id} className="panel-item">
+                            <div className="panel-item__icon" style={{ background: 'rgba(235, 69, 158, 0.12)', color: '#EB459E' }}><BookOpen size={18} /></div>
+                            <div className="panel-item__info">
+                                <span className="panel-item__title">Ticket: {t.ticket_name}</span>
+                                <span className="panel-item__meta">
+                                    <span className="badge badge-blurple" style={{ fontSize: '0.65rem' }}>👤 {t.author_id}</span>
+                                    {t.closed_by_name && <span className="panel-item__ch">Cerrado por: {t.closed_by_name}</span>}
+                                    <span className="panel-item__counter">📅 {new Date(t.created_at).toLocaleDateString()}</span>
+                                </span>
+                            </div>
+                            <button className="btn btn-secondary btn-sm" onClick={() => viewTranscript(t.id)}>
+                                <Bot size={14} /> Ver chat
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </>
     )
 }
 
@@ -285,6 +326,32 @@ function TicketsConfig({ guildId, channels, roles }) {
         mensaje: 'Nuestro horario de soporte ha finalizado. Te responderemos lo antes posible cuando volvamos a estar operativos.'
     })
     const [scheduleSaving, setScheduleSaving] = useState(false)
+
+    // -- Per-panel schedule editor --
+    const [editSchedulePanel, setEditSchedulePanel] = useState(null)
+    const [panelScheduleForm, setPanelScheduleForm] = useState({})
+    const [panelScheduleSaving, setPanelScheduleSaving] = useState(false)
+
+    const openScheduleEditor = (p) => {
+        if (editSchedulePanel === p.id_panel) { setEditSchedulePanel(null); return }
+        setPanelScheduleForm(p.schedule || {
+            enabled: false, dias: [0, 1, 2, 3, 4],
+            hora_inicio: '09:00', hora_fin: '18:00', timezone: 'Europe/Madrid',
+            mensaje: 'Nuestro horario de soporte ha finalizado. Te responderemos lo antes posible cuando volvamos a estar operativos.'
+        })
+        setEditSchedulePanel(p.id_panel)
+    }
+
+    const handleSavePanelSchedule = async (panelId) => {
+        setPanelScheduleSaving(true)
+        try {
+            await api.patch(`/servers/${guildId}/tickets/${panelId}/schedule`, panelScheduleForm)
+            showToast('✅ Horario del panel guardado.')
+            setEditSchedulePanel(null)
+            load()
+        } catch (e) { showToast('Error al guardar el horario.', 'error') }
+        finally { setPanelScheduleSaving(false) }
+    }
 
     const openEmbedEditor = (p) => {
         if (editEmbedPanel === p.id_panel) { setEditEmbedPanel(null); return }
@@ -394,6 +461,14 @@ function TicketsConfig({ guildId, channels, roles }) {
                                                     title="Configurar embed del ticket"
                                                 >
                                                     <Pencil size={14} />
+                                                </button>
+                                                <button
+                                                    className={`panel-item__edit ${editSchedulePanel === p.id_panel ? 'panel-item__edit--active' : ''}`}
+                                                    onClick={() => openScheduleEditor(p)}
+                                                    title="Horario individual del panel"
+                                                    style={{ color: 'var(--yellow)' }}
+                                                >
+                                                    <Clock size={14} />
                                                 </button>
                                                 <button className="panel-item__delete" onClick={() => handleDelete(p.id_panel)} disabled={deleting === p.id_panel} title="Borrar panel y mensaje de Discord">
                                                     {deleting === p.id_panel ? <Loader2 size={15} className="spin" /> : <Trash2 size={15} />}
@@ -529,6 +604,67 @@ function TicketsConfig({ guildId, channels, roles }) {
                                                     </div>
                                                 </div>
                                             )}
+
+                                            {/* ── SCHEDULE EDITOR ── */}
+                                            {editSchedulePanel === p.id_panel && (
+                                                <div className="embed-editor" style={{ borderLeft: '3px solid var(--yellow)' }}>
+                                                    <div className="mod-block__header" style={{ marginBottom: '1rem' }}>
+                                                        <div className="mod-block__title-group">
+                                                            <Clock size={18} style={{ color: 'var(--yellow)' }} />
+                                                            <h5 style={{ margin: 0 }}>Horario Individual: {p.ticket_title}</h5>
+                                                        </div>
+                                                        <div className="mod-switch">
+                                                            <label className="switch">
+                                                                <input type="checkbox" checked={panelScheduleForm.enabled} 
+                                                                    onChange={e => setPanelScheduleForm(s => ({ ...s, enabled: e.target.checked }))} />
+                                                                <span className="slider round"></span>
+                                                            </label>
+                                                            <span className="switch-label">{panelScheduleForm.enabled ? 'Activado' : 'Desactivado'}</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div className={`form-grid ${!panelScheduleForm.enabled ? 'disabled-section' : ''}`}>
+                                                        <div className="form-field form-field--full">
+                                                            <label>Días operativos</label>
+                                                            <div className="form-radio-group" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                                                                {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((day, idx) => (
+                                                                    <button key={idx} type="button" 
+                                                                        className={`form-radio ${panelScheduleForm.dias.includes(idx) ? 'form-radio--active' : ''}`}
+                                                                        style={{ minWidth: '36px', padding: '0.4rem', fontSize: '0.75rem' }}
+                                                                        onClick={() => {
+                                                                            const activeDays = new Set(panelScheduleForm.dias);
+                                                                            activeDays.has(idx) ? activeDays.delete(idx) : activeDays.add(idx);
+                                                                            setPanelScheduleForm(s => ({ ...s, dias: Array.from(activeDays).sort() }))
+                                                                        }}
+                                                                    >{day}</button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        <div className="form-field">
+                                                            <label>Apertura</label>
+                                                            <input type="time" className="config-input" value={panelScheduleForm.hora_inicio}
+                                                                onChange={e => setPanelScheduleForm(s => ({ ...s, hora_inicio: e.target.value }))} />
+                                                        </div>
+                                                        <div className="form-field">
+                                                            <label>Cierre</label>
+                                                            <input type="time" className="config-input" value={panelScheduleForm.hora_fin}
+                                                                onChange={e => setPanelScheduleForm(s => ({ ...s, hora_fin: e.target.value }))} />
+                                                        </div>
+                                                        <div className="form-field form-field--full">
+                                                            <label>Mensaje automático</label>
+                                                            <textarea className="config-textarea" rows={2} value={panelScheduleForm.mensaje}
+                                                                onChange={e => setPanelScheduleForm(s => ({ ...s, mensaje: e.target.value }))} />
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div className="form-actions" style={{ marginTop: '1rem' }}>
+                                                        <button className="btn btn-secondary btn-sm" onClick={() => setEditSchedulePanel(null)}>Cancelar</button>
+                                                        <button className="btn btn-primary btn-sm" onClick={() => handleSavePanelSchedule(p.id_panel)} disabled={panelScheduleSaving}>
+                                                            {panelScheduleSaving ? <Loader2 size={14} className="spin" /> : <Save size={14} />} Guardar Horario
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>}
@@ -632,7 +768,7 @@ function TicketsConfig({ guildId, channels, roles }) {
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: '1rem' }}>
                         Aquí puedes revisar de forma segura el chat de todos los tickets que se han cerrado en el servidor.
                     </p>
-                    <TranscriptsList guildId={guildId} />
+                    <TranscriptsList guildId={guildId} panels={panels} />
                 </div>
             ) : (
                 <div className="mod-block">
