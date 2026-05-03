@@ -236,10 +236,15 @@ function TranscriptsList({ guildId, panels = [] }) {
     }
 
     const filtered = transcripts.filter(t => {
-        const matchesSearch = t.ticket_name.toLowerCase().includes(search.toLowerCase()) || 
-                              t.author_id.includes(search) ||
-                              (t.closed_by_name || '').toLowerCase().includes(search.toLowerCase())
-        const matchesPanel = !filterPanel || t.panel_id === filterPanel
+        const ticketName = String(t.ticket_name || 'Ticket')
+        const authorId = String(t.author_id || '')
+        const closedByName = String(t.closed_by_name || '')
+        
+        const matchesSearch = ticketName.toLowerCase().includes(search.toLowerCase()) || 
+                              authorId.includes(search) ||
+                              closedByName.toLowerCase().includes(search.toLowerCase())
+        
+        const matchesPanel = !filterPanel || String(t.panel_id || '') === String(filterPanel)
         return matchesSearch && matchesPanel
     })
 
