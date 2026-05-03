@@ -1038,7 +1038,15 @@ function WelcomeConfig({ guildId, channels }) {
                     tipo: d.tipo || 'canal', 
                     canal_id: d.canal_id ? String(d.canal_id) : '', 
                     mensaje: d.mensaje || '',
-                    image_enabled: d.image_enabled ?? true
+                    image_enabled: d.image_enabled ?? true,
+                    layout: d.layout || 'hero',
+                    theme: d.theme || 'blurple',
+                    text_data: d.text_data || {
+                        title: '¡BIENVENIDO!',
+                        subtitle: 'Esperamos que disfrutes de tu estancia',
+                        footer: 'Eres el miembro #1,234'
+                    },
+                    layers: d.layers || []
                 })
             })
             .catch(() => { })
@@ -1168,7 +1176,7 @@ function WelcomeConfig({ guildId, channels }) {
                             {saving ? <><Loader2 size={14} className="spin" /> Guardando...</> : <><Save size={14} /> Guardar Cambios</>}
                         </button>
                     </div>
-                    <ArrivalStudio />
+                    <ArrivalStudio config={config} onChange={setConfig} />
                 </div>
             )}
         </div>

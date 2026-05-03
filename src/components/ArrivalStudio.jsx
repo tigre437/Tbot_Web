@@ -23,17 +23,23 @@ const THEMES = [
     { id: 'midnight', name: 'Midnight', colors: ['#2c2f33', '#090a0b'] },
 ]
 
-export default function ArrivalStudio() {
+export default function ArrivalStudio({ config, onChange }) {
     const [activeTab, setActiveTab] = useState('layouts')
-    const [selectedLayout, setSelectedLayout] = useState('hero')
-    const [selectedTheme, setSelectedTheme] = useState('blurple')
-    const [textData, setTextData] = useState({
+    
+    // Si no hay config (ej: cargando), no renderizar o usar defaults
+    const selectedLayout = config?.layout || 'hero'
+    const selectedTheme = config?.theme || 'blurple'
+    const textData = config?.text_data || {
         title: '¡BIENVENIDO!',
         subtitle: 'Esperamos que disfrutes de tu estancia',
         footer: 'Eres el miembro #1,234'
-    })
+    }
+    const layers = config?.layers || []
 
-    const [layers, setLayers] = useState([])
+    // Helper para actualizar el estado del padre
+    const updateConfig = (updates) => {
+        onChange({ ...config, ...updates })
+    }
 
     const addLayer = () => {
         if (layers.length >= 30) return
@@ -44,21 +50,19 @@ export default function ArrivalStudio() {
             content: 'Texto personalizado',
             x: 50,
             y: 50,
-            w: 'auto',
-            h: 'auto',
             z: layers.length + 1,
             opacity: 100,
             color: '#ffffff',
             size: 24,
             visible: true
         }
-        setLayers([...layers, newLayer])
+        updateConfig({ layers: [...layers, newLayer] })
     }
 
-    const removeLayer = (id) => setLayers(layers.filter(l => l.id !== id))
+    const removeLayer = (id) => updateConfig({ layers: layers.filter(l => l.id !== id) })
 
     const updateLayer = (id, data) => {
-        setLayers(layers.map(l => l.id === id ? { ...l, ...data } : l))
+        updateConfig({ layers: layers.map(l => l.id === id ? { ...l, ...data } : l) })
     }
 
     const currentTheme = THEMES.find(t => t.id === selectedTheme)
@@ -90,7 +94,7 @@ export default function ArrivalStudio() {
                                 <div
                                     key={l.id}
                                     className={`as-item-card ${selectedLayout === l.id ? 'as-item-card--active' : ''}`}
-                                    onClick={() => setSelectedLayout(l.id)}
+                                    onClick={() => updateConfig({ layout: l.id })}
                                 >
                                     <div className="as-item-card__icon" />
                                     <span className="as-item-card__name">{l.name}</span>
@@ -105,7 +109,7 @@ export default function ArrivalStudio() {
                                 <div
                                     key={t.id}
                                     className={`as-item-card as-theme-card ${selectedTheme === t.id ? 'as-item-card--active' : ''}`}
-                                    onClick={() => setSelectedTheme(t.id)}
+                                    onClick={() => updateConfig({ theme: t.id })}
                                 >
                                     <div className="as-theme-colors">
                                         {t.colors.map(c => <div key={c} className="as-theme-dot" style={{ background: c }} />)}
@@ -123,7 +127,7 @@ export default function ArrivalStudio() {
                                 <input
                                     className="config-input"
                                     value={textData.title}
-                                    onChange={e => setTextData({ ...textData, title: e.target.value })}
+                                    onChange={e => updateConfig({ text_data: { ...textData, title: e.target.value } })}
                                 />
                             </div>
                             <div className="form-field">
@@ -132,7 +136,7 @@ export default function ArrivalStudio() {
                                     className="config-textarea"
                                     rows={3}
                                     value={textData.subtitle}
-                                    onChange={e => setTextData({ ...textData, subtitle: e.target.value })}
+                                    onChange={e => updateConfig({ text_data: { ...textData, subtitle: e.target.value } })}
                                 />
                             </div>
                             <div className="form-field">
@@ -140,7 +144,7 @@ export default function ArrivalStudio() {
                                 <input
                                     className="config-input"
                                     value={textData.footer}
-                                    onChange={e => setTextData({ ...textData, footer: e.target.value })}
+                                    onChange={e => updateConfig({ text_data: { ...textData, footer: e.target.value } })}
                                 />
                             </div>
                         </div>
