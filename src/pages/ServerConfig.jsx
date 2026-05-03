@@ -225,9 +225,16 @@ function TranscriptsList({ guildId, panels = [] }) {
     const [filterPanel, setFilterPanel] = useState('')
 
     useEffect(() => {
+        console.log(`[Transcripts] Cargando para servidor: ${guildId}`);
         api.get(`/servers/${guildId}/transcripts`)
-            .then(res => setTranscripts(res.data))
-            .catch(() => setTranscripts([]))
+            .then(res => {
+                console.log(`[Transcripts] ${res.data.length} transcripciones cargadas.`);
+                setTranscripts(res.data);
+            })
+            .catch(err => {
+                console.error("[Transcripts] Error al cargar:", err);
+                setTranscripts([]);
+            })
             .finally(() => setLoading(false))
     }, [guildId])
 
