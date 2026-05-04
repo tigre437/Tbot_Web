@@ -273,8 +273,9 @@ const plans = [
             'Soporte prioritario',
             'Estadísticas avanzadas',
         ],
-        cta: 'Comenzar con Pro',
+        cta: 'Próximamente',
         ctaClass: 'btn-primary',
+        disabled: true,
     },
     {
         name: 'Enterprise',
@@ -290,8 +291,9 @@ const plans = [
             'Soporte 24/7 dedicado',
             'SLA garantizado',
         ],
-        cta: 'Contactar',
+        cta: 'Próximamente',
         ctaClass: 'btn-secondary',
+        disabled: true,
     },
 ]
 
@@ -330,7 +332,11 @@ function Pricing() {
                                     </li>
                                 ))}
                             </ul>
-                            <button onClick={login} className={`btn ${plan.ctaClass} pricing-card__cta`}>
+                            <button 
+                                onClick={login} 
+                                className={`btn ${plan.ctaClass} pricing-card__cta`}
+                                disabled={plan.disabled}
+                            >
                                 {plan.cta}
                             </button>
                         </div>

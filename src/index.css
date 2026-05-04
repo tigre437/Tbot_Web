@@ -146,6 +146,14 @@ input, textarea, select { font-family: inherit; }
   white-space: nowrap;
 }
 
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: grayscale(0.5);
+}
+
 .btn-primary {
   background: var(--blurple);
   color: white;
