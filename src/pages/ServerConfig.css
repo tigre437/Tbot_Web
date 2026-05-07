@@ -1651,3 +1651,87 @@ input:checked + .slider:before {
     color: var(--blurple-light);
     border-bottom-color: var(--blurple);
 }
+
+/* ─── PRO SYSTEM STYLES ─── */
+.pro-badge {
+    background: linear-gradient(135deg, #f5c518, #ff8c00);
+    color: #000;
+    font-weight: 800;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    box-shadow: 0 0 10px rgba(245, 197, 24, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+}
+
+.pro-lock {
+    position: relative;
+    padding: 4rem 2rem;
+    text-align: center;
+    background: rgba(15, 15, 20, 0.4);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.pro-lock::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(88, 101, 242, 0.05) 0%, transparent 70%);
+}
+
+.pro-lock__content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pro-lock h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.pro-lock p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    max-width: 400px;
+    margin: 0 auto 1rem;
+    line-height: 1.5;
+}
+
+.pro-lock-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(90deg, rgba(245, 197, 24, 0.1) 0%, transparent 100%);
+    border: 1px solid rgba(245, 197, 24, 0.2);
+    border-radius: var(--radius-md);
+    margin-bottom: 1.25rem;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.pro-lock-inline strong {
+    color: var(--yellow);
+}
+
+.btn-xs {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.75rem;
+}
+
+/* Tooltip Adjustments for Pro */
+.tooltip-box {
+    z-index: 1000;
+}

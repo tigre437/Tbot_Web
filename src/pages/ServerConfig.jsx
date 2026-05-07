@@ -20,6 +20,38 @@ const MODULES = [
     { id: 'levels', icon: Star, label: 'Niveles & XP', color: '#f5c518', desc: 'Roles por tiempo' },
 ]
 
+const MAX_FREE_LIMITS = {
+    TICKET_PANELS: 1,
+    AUTOROLE_PANELES: 1,
+    VOICE_MASTER_CHANNELS: 1,
+}
+
+// ─── PRO COMPONENTS ───────────────────────────────────────────────────────────
+function ProBadge({ size = 10 }) {
+    return (
+        <span className="pro-badge" style={{ fontSize: `${size}px` }}>
+            <Sparkles size={size + 2} /> PRO
+        </span>
+    )
+}
+
+function ProGuard({ isPro, children, fallback = null, featureName = "esta función" }) {
+    if (isPro) return children
+    
+    if (fallback) return fallback
+
+    return (
+        <div className="pro-lock">
+            <div className="pro-lock__content">
+                <Sparkles size={24} style={{ color: 'var(--yellow)' }} />
+                <h3>Función Premium</h3>
+                <p>Mejora a <strong>TBot Pro</strong> para desbloquear {featureName} y llevar tu servidor al siguiente nivel.</p>
+                <Link to="/#pricing" className="btn btn-primary btn-sm">Ver planes Pro</Link>
+            </div>
+        </div>
+    )
+}
+
 const WELCOME_VARS = [
     { tag: '{{user}}', label: 'Mención usuario', desc: 'Menciona al usuario que entra. Ej: @TBot' },
     { tag: '{{nombre_canal}}', label: 'Canal principal', desc: 'Canal de sistema o #general del servidor' },
@@ -312,7 +344,8 @@ function TranscriptsList({ guildId, panels = [] }) {
 }
 
 // ─── TICKETS MODULE ───────────────────────────────────────────────────────────
-function TicketsConfig({ guildId, channels, roles }) {
+function TicketsConfig({ guildId, channels, roles, plan }) {
+    const isPro = plan === 'pro' || plan === 'enterprise'
     const [tab, setTab] = useState('panels')
     const [panels, setPanels] = useState([])
     const [loading, setLoading] = useState(true)
@@ -410,6 +443,9 @@ function TicketsConfig({ guildId, channels, roles }) {
     }
 
     const handleCreate = async () => {
+        if (!isPro && panels.length >= MAX_FREE_LIMITS.TICKET_PANELS) {
+            return showToast(`Has alcanzado el límite de ${MAX_FREE_LIMITS.TICKET_PANELS} panel en la versión gratuita.`, 'error')
+        }
         if (!form.channel_id || !form.titulo) return showToast('Canal y título son obligatorios.', 'error')
         setSaving(true)
         try {
@@ -447,7 +483,16 @@ function TicketsConfig({ guildId, channels, roles }) {
                     <div className="mod-block">
                         <div className="mod-block__header">
                             <h4>Paneles configurados</h4>
-                            <button className="btn btn-primary btn-sm" onClick={() => setShowForm(s => !s)}>
+                            <button 
+                                className="btn btn-primary btn-sm" 
+                                onClick={() => {
+                                    if (!isPro && panels.length >= MAX_FREE_LIMITS.TICKET_PANELS) {
+                                        showToast(`Límite de ${MAX_FREE_LIMITS.TICKET_PANELS} panel alcanzado. Mejora a PRO.`, 'error')
+                                        return
+                                    }
+                                    setShowForm(s => !s)
+                                }}
+                            >
                                 {showForm ? <><X size={14} /> Cancelar</> : <><Plus size={14} /> Nuevo panel</>}
                             </button>
                         </div>
@@ -476,11 +521,18 @@ function TicketsConfig({ guildId, channels, roles }) {
                                                 </button>
                                                 <button
                                                     className={`panel-item__edit ${editSchedulePanel === p.id_panel ? 'panel-item__edit--active' : ''}`}
-                                                    onClick={() => openScheduleEditor(p)}
-                                                    title="Horario individual del panel"
-                                                    style={{ color: 'var(--yellow)' }}
+                                                    onClick={() => {
+                                                        if (!isPro) {
+                                                            showToast('El horario individual es una función PRO.', 'error')
+                                                            return
+                                                        }
+                                                        openScheduleEditor(p)
+                                                    }}
+                                                    title={isPro ? "Horario individual del panel" : "Función PRO: Horario individual"}
+                                                    style={{ color: isPro ? 'var(--yellow)' : 'var(--text-muted)', opacity: isPro ? 1 : 0.5 }}
                                                 >
                                                     <Clock size={14} />
+                                                    {!isPro && <div style={{ position: 'absolute', top: -5, right: -5 }}><ProBadge size={7} /></div>}
                                                 </button>
                                                 <button className="panel-item__delete" onClick={() => handleDelete(p.id_panel)} disabled={deleting === p.id_panel} title="Borrar panel y mensaje de Discord">
                                                     {deleting === p.id_panel ? <Loader2 size={15} className="spin" /> : <Trash2 size={15} />}
@@ -788,6 +840,7 @@ function TicketsConfig({ guildId, channels, roles }) {
                         <div className="mod-block__title-group">
                             <Clock size={20} className="mod-block__icon" />
                             <h4>Horario de Soporte</h4>
+                            {!isPro && <ProBadge size={10} />}
                         </div>
                         <div className="mod-switch">
                             <label className="switch">
@@ -800,6 +853,14 @@ function TicketsConfig({ guildId, channels, roles }) {
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: '1.5rem' }}>
                         Configura un horario de atención al cliente. Si un usuario abre un ticket fuera de este horario o en días no laborables, el bot contestará de forma automática.
                     </p>
+
+                    {!isPro && (
+                        <div className="pro-lock-inline">
+                            <Sparkles size={16} />
+                            <span>Esta función requiere <strong>TBot Pro</strong></span>
+                            <Link to="/#pricing" className="btn btn-primary btn-xs" style={{ marginLeft: 'auto' }}>Mejorar ahora</Link>
+                        </div>
+                    )}
 
                     <div className={`form-grid ${!scheduleForm.enabled ? 'disabled-section' : ''}`}>
                         <div className="form-field form-field--full">
@@ -868,7 +929,8 @@ function TicketsConfig({ guildId, channels, roles }) {
 }
 
 // ─── AUTOROLES MODULE ─────────────────────────────────────────────────────────
-function AutorolesConfig({ guildId, roles, channels }) {
+function AutorolesConfig({ guildId, roles, channels, plan }) {
+    const isPro = plan === 'pro' || plan === 'enterprise'
     const [tab, setTab] = useState('panels')
     const [toast, showToast] = useToast()
 
@@ -987,7 +1049,13 @@ function AutorolesConfig({ guildId, roles, channels }) {
                             <h4>Paneles de roles</h4>
                             <p className="mod-hint" style={{ margin: '0.2rem 0 0' }}>Mensajes con botones en un canal. Los usuarios hacen clic para obtener o quitar un rol.</p>
                         </div>
-                        <button className="btn btn-primary btn-sm" onClick={() => setShowPanelForm(s => !s)}>
+                        <button className="btn btn-primary btn-sm" onClick={() => {
+                            if (!isPro && panels.length >= MAX_FREE_LIMITS.AUTOROLE_PANELES) {
+                                showToast(`Límite de ${MAX_FREE_LIMITS.AUTOROLE_PANELES} panel alcanzado. Mejora a PRO.`, 'error')
+                                return
+                            }
+                            setShowPanelForm(s => !s)
+                        }}>
                             {showPanelForm ? <><X size={14} /> Cancelar</> : <><Plus size={14} /> Nuevo panel</>}
                         </button>
                     </div>
@@ -1168,7 +1236,8 @@ function AutorolesConfig({ guildId, roles, channels }) {
 }
 
 // ─── WELCOME MODULE ───────────────────────────────────────────────────────────
-function WelcomeConfig({ guildId, channels }) {
+function WelcomeConfig({ guildId, channels, plan }) {
+    const isPro = plan === 'pro' || plan === 'enterprise'
     const [tab, setTab] = useState('general')
     const [config, setConfig] = useState({ enabled: true, tipo: 'canal', canal_id: '', mensaje: '', image_enabled: true })
     const [loading, setLoading] = useState(true)
@@ -1313,18 +1382,20 @@ function WelcomeConfig({ guildId, channels }) {
                 </>
             ) : (
                 <div style={{ marginTop: '1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                        <div>
-                            <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <Sparkles size={20} className="gradient-text" /> Arrival Studio
-                            </h3>
-                            <p className="mod-hint" style={{ margin: '0.2rem 0 0' }}>Diseña la tarjeta de imagen que se enviará con la bienvenida.</p>
+                    <ProGuard isPro={isPro} featureName="Arrival Studio (Imágenes personalizadas)">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <div>
+                                <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <Sparkles size={20} className="gradient-text" /> Arrival Studio
+                                </h3>
+                                <p className="mod-hint" style={{ margin: '0.2rem 0 0' }}>Diseña la tarjeta de imagen que se enviará con la bienvenida.</p>
+                            </div>
+                            <button className="btn btn-primary btn-sm" onClick={handleSave} disabled={saving}>
+                                {saving ? <><Loader2 size={14} className="spin" /> Guardando...</> : <><Save size={14} /> Guardar Cambios</>}
+                            </button>
                         </div>
-                        <button className="btn btn-primary btn-sm" onClick={handleSave} disabled={saving}>
-                            {saving ? <><Loader2 size={14} className="spin" /> Guardando...</> : <><Save size={14} /> Guardar Cambios</>}
-                        </button>
-                    </div>
-                    <ArrivalStudio config={config} onChange={setConfig} />
+                        <ArrivalStudio config={config} onChange={setConfig} />
+                    </ProGuard>
                 </div>
             )}
         </div>
@@ -1332,7 +1403,8 @@ function WelcomeConfig({ guildId, channels }) {
 }
 
 // ─── VOICE CONFIG ─────────────────────────────────────────────────────────────
-function VoiceConfig({ guildId, channels }) {
+function VoiceConfig({ guildId, channels, plan }) {
+    const isPro = plan === 'pro' || plan === 'enterprise'
     const [config, setConfig] = useState({ enabled: true, channel_id: '' })
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
@@ -1374,18 +1446,35 @@ function VoiceConfig({ guildId, channels }) {
             </div>
             {config.enabled && (
                 <div className="mod-block">
-                    <h4 className="config-panel__section-title">Canal generador</h4>
+                    <div className="mod-block__header">
+                        <h4 className="config-panel__section-title">Canal generador</h4>
+                        {!isPro && <ProBadge size={10} />}
+                    </div>
                     <p className="mod-hint" style={{ marginBottom: '1rem' }}>Selecciona el canal de voz al que los usuarios deben unirse para crear su propio canal temporal.</p>
-                    <div className="form-field">
+                    
+                    {!isPro && (
+                        <div className="pro-lock-inline">
+                            <Sparkles size={16} />
+                            <span>La gestión de voz dinámica requiere <strong>TBot Pro</strong></span>
+                            <Link to="/#pricing" className="btn btn-primary btn-xs" style={{ marginLeft: 'auto' }}>Mejorar ahora</Link>
+                        </div>
+                    )}
+
+                    <div className={`form-field ${!isPro ? 'disabled-section' : ''}`}>
                         <label>Canal de voz generador</label>
-                        <select className="config-select" value={config.channel_id} onChange={e => setConfig(p => ({ ...p, channel_id: e.target.value }))}>
+                        <select 
+                            className="config-select" 
+                            value={config.channel_id} 
+                            onChange={e => setConfig(p => ({ ...p, channel_id: e.target.value }))}
+                            disabled={!isPro}
+                        >
                             <option value="">Selecciona un canal de voz...</option>
                             {voiceChannels.map(c => <option key={c.id} value={c.id}>🔊 {c.name}</option>)}
                         </select>
                     </div>
                 </div>
             )}
-            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+            <button className="btn btn-primary" onClick={handleSave} disabled={saving || !isPro}>
                 {saving ? <><Loader2 size={15} className="spin" /> Guardando...</> : <><Save size={15} /> Guardar configuración</>}
             </button>
         </div>
@@ -1394,7 +1483,8 @@ function VoiceConfig({ guildId, channels }) {
 
 
 // ─── LEVELS CONFIG ─────────────────────────────────────────────────────────────
-function LevelsConfig({ guildId, channels, roles }) {
+function LevelsConfig({ guildId, channels, roles, plan }) {
+    const isPro = plan === 'pro' || plan === 'enterprise'
     const [tab, setTab] = useState('leaderboard')
     const [toast, showToast] = useToast()
 
@@ -1655,14 +1745,14 @@ function GenericConfig({ module }) {
 }
 
 // ─── CONFIG RENDERER ──────────────────────────────────────────────────────────
-function ConfigRenderer({ moduleId, guildId, channels, roles }) {
+function ConfigRenderer({ moduleId, guildId, channels, roles, plan }) {
     const mod = MODULES.find(m => m.id === moduleId)
     switch (moduleId) {
-        case 'tickets': return <TicketsConfig guildId={guildId} channels={channels} roles={roles} />
-        case 'autoroles': return <AutorolesConfig guildId={guildId} roles={roles} channels={channels} />
-        case 'welcome': return <WelcomeConfig guildId={guildId} channels={channels} />
-        case 'voice': return <VoiceConfig guildId={guildId} channels={channels} />
-        case 'levels': return <LevelsConfig guildId={guildId} channels={channels} roles={roles} />
+        case 'tickets': return <TicketsConfig guildId={guildId} channels={channels} roles={roles} plan={plan} />
+        case 'autoroles': return <AutorolesConfig guildId={guildId} roles={roles} channels={channels} plan={plan} />
+        case 'welcome': return <WelcomeConfig guildId={guildId} channels={channels} plan={plan} />
+        case 'voice': return <VoiceConfig guildId={guildId} channels={channels} plan={plan} />
+        case 'levels': return <LevelsConfig guildId={guildId} channels={channels} roles={roles} plan={plan} />
         default: return <GenericConfig module={mod} />
     }
 }
@@ -1776,7 +1866,7 @@ export default function ServerConfig() {
                                     </div>
                                 </div>
                                 {enabledModules[activeModule] ? (
-                                    <ConfigRenderer moduleId={activeModule} guildId={serverId} channels={channels} roles={roles} />
+                                    <ConfigRenderer moduleId={activeModule} guildId={serverId} channels={channels} roles={roles} plan={server?.plan || 'free'} />
                                 ) : (
                                     <div className="sc__disabled-notice">
                                         <img src={logoImg} alt="Logo" />

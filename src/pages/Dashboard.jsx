@@ -16,6 +16,7 @@ const MOCK_SERVERS = [
         botOnline: true,
         isOwner: true,
         permissions: ['ADMINISTRATOR'],
+        plan: 'pro'
     },
     {
         id: '987654321098765432',
@@ -25,6 +26,7 @@ const MOCK_SERVERS = [
         botOnline: true,
         isOwner: false,
         permissions: ['ADMINISTRATOR'],
+        plan: 'free'
     },
     {
         id: '876543210987654321',
@@ -34,6 +36,7 @@ const MOCK_SERVERS = [
         botOnline: false,
         isOwner: true,
         permissions: ['ADMINISTRATOR'],
+        plan: 'free'
     },
 ]
 
