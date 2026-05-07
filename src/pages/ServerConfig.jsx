@@ -299,9 +299,13 @@ function TranscriptsList({ guildId, panels = [] }) {
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
     const [filterPanel, setFilterPanel] = useState('')
+    const [error, setError] = useState(null)
+    const { user, createPaymentSession } = useAuth()
 
     useEffect(() => {
         console.log(`[Transcripts] Cargando para servidor: ${guildId}`);
+        setLoading(true)
+        setError(null)
         api.get(`/servers/${guildId}/transcripts`)
             .then(res => {
                 console.log(`[Transcripts] ${res.data.length} transcripciones cargadas.`);
@@ -309,6 +313,11 @@ function TranscriptsList({ guildId, panels = [] }) {
             })
             .catch(err => {
                 console.error("[Transcripts] Error al cargar:", err);
+                if (err.response?.status === 403) {
+                    setError('pro_required');
+                } else {
+                    setError('general');
+                }
                 setTranscripts([]);
             })
             .finally(() => setLoading(false))
@@ -358,12 +367,46 @@ function TranscriptsList({ guildId, panels = [] }) {
                 </select>
             </div>
 
-            {filtered.length === 0 ? (
+            {/* Error states */}
+            {error === 'pro_required' && (
+                <div className="mod-empty" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                    <Crown size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
+                    <h3 style={{ color: 'var(--yellow)', marginBottom: '0.5rem' }}>Función Exclusiva Pro</h3>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+                        Las transcripciones son una función exclusiva del plan Pro.<br/>
+                        Mejora tu plan para acceder a todas las transcripciones de tus tickets.
+                    </p>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <button 
+                            className="btn btn-primary"
+                            onClick={() => createPaymentSession('monthly')}
+                        >
+                            <Crown size={16} /> Mejorar a Pro
+                        </button>
+                        <button 
+                            className="btn btn-secondary"
+                            onClick={() => createPaymentSession('annual')}
+                        >
+                            <Crown size={16} /> Ahorrar más (Anual)
+                        </button>
+                    </div>
+                </div>
+            )}
+            
+            {error === 'general' && (
+                <div className="mod-empty">
+                    <AlertCircle size={32} style={{ opacity: 0.3 }} />
+                    <p>Error al cargar las transcripciones. Por favor, inténtalo de nuevo más tarde.</p>
+                </div>
+            )}
+
+            {/* Normal content */}
+            {!error && filtered.length === 0 ? (
                 <div className="mod-empty">
                     <Bot size={32} style={{ opacity: 0.3 }} />
                     <p>{transcripts.length === 0 ? 'No hay transcripciones guardadas aún.' : 'No se encontraron resultados para tu búsqueda.'}</p>
                 </div>
-            ) : (
+            ) : !error && (
                 <div className="panel-list">
                     {filtered.map(t => (
                         <div key={t.id} className="panel-item">
