@@ -41,12 +41,16 @@ export function AuthProvider({ children }) {
 
     const createPaymentSession = async (planType = 'monthly') => {
         try {
+            console.log('Creating payment session with plan type:', planType)
+            console.log('Making request to:', '/payment/create-checkout-session')
             const response = await api.post('/payment/create-checkout-session', {
                 plan_type: planType
             })
+            console.log('Payment session created:', response.data)
             window.location.href = response.data.url
         } catch (error) {
             console.error('Error creating payment session:', error)
+            console.error('Error response:', error.response)
             throw error
         }
     }
