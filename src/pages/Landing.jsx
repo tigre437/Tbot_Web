@@ -261,7 +261,7 @@ const plans = [
     },
     {
         name: 'Pro',
-        price: '4.99€',
+        price: '3.99€',
         period: '/mes',
         highlight: true,
         badge: '⭐ Popular',
@@ -274,6 +274,23 @@ const plans = [
             'Estadísticas avanzadas',
         ],
         cta: 'Empezar ahora',
+        ctaClass: 'btn-primary',
+    },
+    {
+        name: 'Pro Anual',
+        price: '2.99€',
+        period: '/mes',
+        highlight: true,
+        badge: '💎 MEJOR VALOR',
+        features: [
+            'Todo lo del plan Pro',
+            'Ahorra €12 al año (25% descuento)',
+            'Funciones exclusivas',
+            'Soporte VIP prioritario',
+            'Acceso anticipado a nuevas funciones',
+            'Badge especial en el dashboard',
+        ],
+        cta: 'Ahorra más',
         ctaClass: 'btn-primary',
     },
     {
@@ -302,6 +319,12 @@ function Pricing() {
         if (planName === 'Pro') {
             try {
                 await createPaymentSession('monthly')
+            } catch (error) {
+                alert('Error al iniciar el proceso de pago. Por favor, inténtalo de nuevo.')
+            }
+        } else if (planName === 'Pro Anual') {
+            try {
+                await createPaymentSession('annual')
             } catch (error) {
                 alert('Error al iniciar el proceso de pago. Por favor, inténtalo de nuevo.')
             }

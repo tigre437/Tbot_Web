@@ -120,10 +120,11 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
     const [refreshing, setRefreshing] = useState(false)
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
-    const handleUpgradeClick = async () => {
+    const handleUpgradeClick = (planType) => {
         try {
-            await createPaymentSession('monthly')
+            createPaymentSession(planType)
         } catch (error) {
             alert('Error al iniciar el proceso de pago. Por favor, inténtalo de nuevo.')
         }
@@ -164,17 +165,29 @@ export default function Dashboard() {
                 <div className="dashboard__hero-glow" />
                 <div className="container">
                     <div className="dashboard__welcome">
-                        <img
-                            src={user?.avatar
-                                ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-                                : `https://cdn.discordapp.com/embed/avatars/0.png`
-                            }
-                            alt={user?.username}
-                            className="dashboard__avatar"
-                        />
+                        <div className="dashboard__avatar-container">
+                            <img
+                                src={user?.avatar
+                                    ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+                                    : `https://cdn.discordapp.com/embed/avatars/0.png`
+                                }
+                                alt={user?.username}
+                                className="dashboard__avatar"
+                            />
+                            {user?.plan === 'pro' && (
+                                <div className="dashboard__pro-badge" title="Usuario Pro">
+                                    <Crown size={16} />
+                                </div>
+                            )}
+                        </div>
                         <div>
                             <p className="dashboard__greeting">Bienvenido de vuelta,</p>
-                            <h1 className="dashboard__username">{user?.username || 'Usuario'} 👋</h1>
+                            <h1 className="dashboard__username">
+                                {user?.username || 'Usuario'} 👋
+                                {user?.plan === 'pro' && (
+                                    <span className="dashboard__pro-text">PRO</span>
+                                )}
+                            </h1>
                         </div>
                     </div>
 
@@ -199,7 +212,7 @@ export default function Dashboard() {
                                     <Crown size={16} />
                                 </span>
                                 <button 
-                                    onClick={handleUpgradeClick}
+                                    onClick={() => setShowUpgradeModal(true)}
                                     className="dashboard__upgrade-btn"
                                 >
                                     Mejorar ahora
@@ -285,6 +298,60 @@ export default function Dashboard() {
                     </a>
                 </div>
             </div>
+            
+            {/* Upgrade Modal */}
+            {showUpgradeModal && (
+                <div className="modal-overlay" onClick={() => setShowUpgradeModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Elige tu plan Pro</h3>
+                            <button className="modal-close" onClick={() => setShowUpgradeModal(false)}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="upgrade-options">
+                                <div className="upgrade-option" onClick={() => handleUpgradeClick('monthly')}>
+                                    <div className="upgrade-option__header">
+                                        <h4>Plan Mensual</h4>
+                                        <div className="upgrade-option__price">
+                                            <span className="price">€3.99</span>
+                                            <span className="period">/mes</span>
+                                        </div>
+                                    </div>
+                                    <div className="upgrade-option__features">
+                                        <div className="feature-item">✓ Paneles de tickets ilimitados</div>
+                                        <div className="feature-item">✓ Arrival Studio desbloqueado</div>
+                                        <div className="feature-item">✓ Canales de voz dinámicos</div>
+                                        <div className="feature-item">✓ Soporte prioritario</div>
+                                    </div>
+                                    <button className="btn btn-primary upgrade-btn">Elegir Mensual</button>
+                                </div>
+                                
+                                <div className="upgrade-option upgrade-option--annual">
+                                    <div className="upgrade-option__badge">MEJOR VALOR</div>
+                                    <div className="upgrade-option__header">
+                                        <h4>Plan Anual</h4>
+                                        <div className="upgrade-option__price">
+                                            <span className="price">€2.99</span>
+                                            <span className="period">/mes</span>
+                                        </div>
+                                    </div>
+                                    <div className="upgrade-option__savings">
+                                        <span className="savings-badge">Ahorra €12 al año</span>
+                                        <span className="savings-text">25% de descuento</span>
+                                    </div>
+                                    <div className="upgrade-option__features">
+                                        <div className="feature-item">✓ Todo lo del plan mensual</div>
+                                        <div className="feature-item">✓ Ahorro de €12 anuales</div>
+                                        <div className="feature-item">✓ Funciones exclusivas</div>
+                                        <div className="feature-item">✓ Soporte VIP</div>
+                                    </div>
+                                    <button className="btn btn-primary upgrade-btn upgrade-btn--annual">Elegir Anual</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
