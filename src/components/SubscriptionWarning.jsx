@@ -11,10 +11,12 @@ export default function SubscriptionWarning() {
     useEffect(() => {
         const fetchSubscriptionStatus = async () => {
             try {
+                console.log('🔍 [SubscriptionWarning] Fetching subscription status...')
                 const response = await api.get('/subscription/status')
+                console.log('✅ [SubscriptionWarning] Status response:', response.data)
                 setSubscriptionStatus(response.data)
             } catch (error) {
-                console.error('Error fetching subscription status:', error)
+                console.error('❌ [SubscriptionWarning] Error fetching subscription status:', error)
             } finally {
                 setLoading(false)
             }
@@ -22,6 +24,27 @@ export default function SubscriptionWarning() {
 
         fetchSubscriptionStatus()
     }, [])
+
+    // Debug logs
+    useEffect(() => {
+        console.log('🔍 [SubscriptionWarning] Status:', subscriptionStatus)
+        console.log('🔍 [SubscriptionWarning] Loading:', loading)
+        console.log('🔍 [SubscriptionWarning] Dismissed:', dismissed)
+        
+        if (subscriptionStatus) {
+            console.log('🔍 [SubscriptionWarning] Has subscription:', subscriptionStatus.has_subscription)
+            console.log('🔍 [SubscriptionWarning] Auto renew:', subscriptionStatus.auto_renew)
+            console.log('🔍 [SubscriptionWarning] Days until expiry:', subscriptionStatus.days_until_expiry)
+            
+            const shouldShow = (
+                subscriptionStatus.has_subscription && 
+                !subscriptionStatus.auto_renew && 
+                subscriptionStatus.days_until_expiry < 15
+            )
+            
+            console.log('🔍 [SubscriptionWarning] Should show warning:', shouldShow)
+        }
+    }, [subscriptionStatus, loading, dismissed])
 
     // Don't show if loading, dismissed, or no subscription, or auto-renew is enabled
     if (loading || dismissed || !subscriptionStatus || !subscriptionStatus.has_subscription || subscriptionStatus.auto_renew) {
