@@ -396,11 +396,13 @@
     background: linear-gradient(135deg, var(--yellow), #f59e0b);
     border: none;
     color: var(--bg-primary);
+    transition: all 0.2s ease;
 }
 
 .upgrade-btn--annual:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    transform: translateY(-2px) scale(1.02);
+    filter: brightness(1.05);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.35);
 }
 
 @media (max-width: 768px) {
