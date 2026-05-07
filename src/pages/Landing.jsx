@@ -296,7 +296,7 @@ const plans = [
 ]
 
 function Pricing() {
-    const { login } = useAuth()
+    const { user, login } = useAuth()
 
     return (
         <section className="section pricing" id="pricing">
@@ -330,13 +330,18 @@ function Pricing() {
                                     </li>
                                 ))}
                             </ul>
-                            <button 
-                                onClick={login} 
-                                className={`btn ${plan.ctaClass} pricing-card__cta`}
-                                disabled={plan.disabled}
-                            >
-                                {plan.cta}
-                            </button>
+                            {user ? (
+                                <Link to="/dashboard" className={`btn ${plan.ctaClass} pricing-card__cta`}>
+                                    {plan.cta}
+                                </Link>
+                            ) : (
+                                <button 
+                                    onClick={login} 
+                                    className={`btn ${plan.ctaClass} pricing-card__cta`}
+                                >
+                                    {plan.cta}
+                                </button>
+                            )}
                         </div>
                     ))}
                 </div>
