@@ -367,12 +367,12 @@ function Pricing() {
                                 ))}
                             </ul>
                             {user ? (
-                                plan.name === 'Pro' ? (
+                                (plan.name === 'Pro' || plan.name === 'Pro Anual') ? (
                                     <button 
                                         onClick={() => handleUpgradeClick(plan.name)}
                                         className={`btn ${plan.ctaClass} pricing-card__cta`}
                                     >
-                                        Mejorar ahora
+                                        {plan.name === 'Pro' ? 'Mejorar ahora' : 'Ahorra más'}
                                     </button>
                                 ) : plan.name === 'Enterprise' ? (
                                     <button 
