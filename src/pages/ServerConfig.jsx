@@ -907,7 +907,9 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                 style={{ marginLeft: 'auto' }}
                                 onClick={async () => {
                                     try {
-                                        const res = await api.post('/payment/create-checkout-session')
+                                        const res = await api.post('/payment/create-checkout-session', {
+                                            plan_type: 'monthly'
+                                        })
                                         window.location.href = res.data.url
                                     } catch (e) { alert('Error: ' + e.message) }
                                 }}
@@ -1516,7 +1518,9 @@ function VoiceConfig({ guildId, channels, plan }) {
                                 style={{ marginLeft: 'auto' }}
                                 onClick={async () => {
                                     try {
-                                        const res = await api.post('/payment/create-checkout-session')
+                                        const res = await api.post('/payment/create-checkout-session', {
+                                            plan_type: 'monthly'
+                                        })
                                         window.location.href = res.data.url
                                     } catch (e) { alert('Error: ' + e.message) }
                                 }}
