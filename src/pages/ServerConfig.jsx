@@ -43,7 +43,7 @@ function ProGuard({ isPro, children, fallback = null, featureName = "esta funciÃ
     const handleUpgrade = async (planType) => {
         setLoading(planType)
         try {
-            const res = await api.post(`/payment/create-checkout-session/${serverId}`, {
+            const res = await api.post('/payment/create-checkout-session', {
                 plan_type: planType
             })
             window.location.href = res.data.url
@@ -907,7 +907,7 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                 style={{ marginLeft: 'auto' }}
                                 onClick={async () => {
                                     try {
-                                        const res = await api.post(`/payment/create-checkout-session/${guildId}`)
+                                        const res = await api.post('/payment/create-checkout-session')
                                         window.location.href = res.data.url
                                     } catch (e) { alert('Error: ' + e.message) }
                                 }}
@@ -1516,7 +1516,7 @@ function VoiceConfig({ guildId, channels, plan }) {
                                 style={{ marginLeft: 'auto' }}
                                 onClick={async () => {
                                     try {
-                                        const res = await api.post(`/payment/create-checkout-session/${guildId}`)
+                                        const res = await api.post('/payment/create-checkout-session')
                                         window.location.href = res.data.url
                                     } catch (e) { alert('Error: ' + e.message) }
                                 }}
