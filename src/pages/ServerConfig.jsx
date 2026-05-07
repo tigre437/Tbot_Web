@@ -3,11 +3,12 @@ import { useParams, Link } from 'react-router-dom'
 import {
     ChevronLeft, ChevronDown, Ticket, Users, Bell, Mic2, MessageSquare, Shield,
     Save, ToggleLeft, ToggleRight, Plus, Trash2, Pencil,
-    CheckCircle2, AlertCircle, Loader2, Bot, Hash, X, Info, Clock, BookOpen, Star, Sparkles
+    CheckCircle2, AlertCircle, Loader2, Bot, Hash, X, Info, Clock, BookOpen, Star, Sparkles, Crown
 } from 'lucide-react'
 import api from '../utils/api'
 import logoImg from '../assets/logo256.png'
 import ArrivalStudio from '../components/ArrivalStudio'
+import { useAuth } from '../context/AuthContext'
 import './ServerConfig.css'
 
 const MODULES = [
