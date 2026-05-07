@@ -5,6 +5,7 @@ import { Search, Crown, Shield, RefreshCw, Plus, Bot, Settings, Wifi, WifiOff } 
 import api from '../utils/api'
 import logoImg from '../assets/logo256.png'
 import './Dashboard.css'
+import SubscriptionWarning from '../components/SubscriptionWarning'
 
 // Mock data for development (remove when API is ready)
 const MOCK_SERVERS = [
@@ -161,6 +162,7 @@ export default function Dashboard() {
 
     return (
         <div className="dashboard page-enter">
+            <SubscriptionWarning />
             <div className="dashboard__hero">
                 <div className="dashboard__hero-glow" />
                 <div className="container">
