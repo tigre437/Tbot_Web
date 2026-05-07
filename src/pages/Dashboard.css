@@ -204,7 +204,7 @@
     justify-content: center;
     z-index: 9999;
     padding: 2rem;
-    padding-top: 10vh;
+    padding-top: 15vh;
     backdrop-filter: blur(4px);
     overflow-y: auto;
 }
@@ -361,7 +361,7 @@
     color: white;
     padding: 0.3rem 0.8rem;
     border-radius: var(--radius-full);
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
 }

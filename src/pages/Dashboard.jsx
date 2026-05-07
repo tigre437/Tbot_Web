@@ -336,8 +336,7 @@ export default function Dashboard() {
                                         </div>
                                     </div>
                                     <div className="upgrade-option__savings">
-                                        <span className="savings-badge">Ahorra €12 al año</span>
-                                        <span className="savings-text">25% de descuento</span>
+                                        <span className="savings-badge">Ahorra un 25% al año</span>
                                     </div>
                                     <div className="upgrade-option__features">
                                         <div className="feature-item">✓ Todo lo del plan mensual</div>

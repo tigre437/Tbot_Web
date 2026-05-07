@@ -284,7 +284,7 @@ const plans = [
         badge: '💎 MEJOR VALOR',
         features: [
             'Todo lo del plan Pro',
-            'Ahorra €12 al año (25% descuento)',
+            'Ahorra un 25% descuento',
             'Funciones exclusivas',
             'Soporte VIP prioritario',
             'Acceso anticipado a nuevas funciones',
