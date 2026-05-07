@@ -200,10 +200,11 @@
     bottom: 0;
     background: rgba(0, 0, 0, 0.8);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     z-index: 9999;
     padding: 2rem;
+    padding-top: 10vh;
     backdrop-filter: blur(4px);
     overflow-y: auto;
 }
@@ -214,13 +215,13 @@
     border-radius: var(--radius-xl);
     max-width: 800px;
     width: 100%;
-    max-height: 90vh;
+    max-height: 80vh;
     overflow-y: auto;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     position: relative;
     z-index: 10000;
     animation: modalSlideIn 0.3s ease-out;
-    margin: auto;
+    margin-top: 0;
 }
 
 @keyframes modalSlideIn {
