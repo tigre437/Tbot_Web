@@ -8,6 +8,33 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true)
     const [paymentLoading, setPaymentLoading] = useState(false)
 
+    // Handle returning from payment without page reload
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (!document.hidden && paymentLoading) {
+                // User returned to the tab, hide payment modal
+                setPaymentLoading(false)
+            }
+        }
+
+        const handleFocus = () => {
+            if (paymentLoading) {
+                // Window regained focus, hide payment modal
+                setPaymentLoading(false)
+            }
+        }
+
+        // Add event listeners
+        document.addEventListener('visibilitychange', handleVisibilityChange)
+        window.addEventListener('focus', handleFocus)
+
+        // Cleanup
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange)
+            window.removeEventListener('focus', handleFocus)
+        }
+    }, [paymentLoading])
+
     useEffect(() => {
         const token = localStorage.getItem('tbot_token')
         if (token) {
