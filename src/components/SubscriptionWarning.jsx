@@ -33,12 +33,10 @@ export default function SubscriptionWarning() {
         
         if (subscriptionStatus) {
             console.log('🔍 [SubscriptionWarning] Has subscription:', subscriptionStatus.has_subscription)
-            console.log('🔍 [SubscriptionWarning] Auto renew:', subscriptionStatus.auto_renew)
             console.log('🔍 [SubscriptionWarning] Days until expiry:', subscriptionStatus.days_until_expiry)
             
             const shouldShow = (
                 subscriptionStatus.has_subscription && 
-                !subscriptionStatus.auto_renew && 
                 subscriptionStatus.days_until_expiry < 15
             )
             
@@ -46,8 +44,8 @@ export default function SubscriptionWarning() {
         }
     }, [subscriptionStatus, loading, dismissed])
 
-    // Don't show if loading, dismissed, or no subscription, or auto-renew is enabled
-    if (loading || dismissed || !subscriptionStatus || !subscriptionStatus.has_subscription || subscriptionStatus.auto_renew) {
+    // Don't show if loading, dismissed, or no subscription
+    if (loading || dismissed || !subscriptionStatus || !subscriptionStatus.has_subscription) {
         return null
     }
 
