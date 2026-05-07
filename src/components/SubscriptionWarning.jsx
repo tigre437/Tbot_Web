@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { AlertTriangle, Clock, Crown, X } from 'lucide-react'
 import api from '../utils/api'
+import { useAuth } from '../context/AuthContext'
 import './SubscriptionWarning.css'
 
 export default function SubscriptionWarning() {
     const [subscriptionStatus, setSubscriptionStatus] = useState(null)
     const [loading, setLoading] = useState(true)
     const [dismissed, setDismissed] = useState(false)
+    const { createPaymentSession } = useAuth()
 
     useEffect(() => {
         const fetchSubscriptionStatus = async () => {
@@ -84,13 +86,7 @@ export default function SubscriptionWarning() {
                     </button>
                     <button 
                         className="btn btn-secondary subscription-warning__btn"
-                        onClick={() => {
-                            // Trigger upgrade flow for renewal
-                            import('../context/AuthContext').then(({ useAuth }) => {
-                                const { createPaymentSession } = useAuth()
-                                createPaymentSession('annual')
-                            })
-                        }}
+                        onClick={() => createPaymentSession('annual')}
                     >
                         <Crown size={16} /> Renovar Ahora
                     </button>
