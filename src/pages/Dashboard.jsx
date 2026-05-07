@@ -344,7 +344,12 @@ export default function Dashboard() {
                                         <div className="feature-item">✓ Funciones exclusivas</div>
                                         <div className="feature-item">✓ Soporte VIP</div>
                                     </div>
-                                    <button className="btn btn-primary upgrade-btn upgrade-btn--annual">Elegir Anual</button>
+                                    <button 
+                                        className="btn btn-primary upgrade-btn upgrade-btn--annual"
+                                        onClick={() => handleUpgradeClick('annual')}
+                                    >
+                                        Elegir Anual
+                                    </button>
                                 </div>
                             </div>
                         </div>
