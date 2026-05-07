@@ -6,6 +6,7 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [paymentLoading, setPaymentLoading] = useState(false)
 
     useEffect(() => {
         const token = localStorage.getItem('tbot_token')
@@ -41,6 +42,7 @@ export function AuthProvider({ children }) {
 
     const createPaymentSession = async (planType = 'monthly') => {
         try {
+            setPaymentLoading(true)
             console.log('Creating payment session with plan type:', planType)
             console.log('Making request to:', '/payment/create-checkout-session')
             const response = await api.post('/payment/create-checkout-session', {
@@ -51,12 +53,13 @@ export function AuthProvider({ children }) {
         } catch (error) {
             console.error('Error creating payment session:', error)
             console.error('Error response:', error.response)
+            setPaymentLoading(false)
             throw error
         }
     }
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout, setTokenAndUser, createPaymentSession }}>
+        <AuthContext.Provider value={{ user, loading, paymentLoading, login, logout, setTokenAndUser, createPaymentSession }}>
             {children}
         </AuthContext.Provider>
     )

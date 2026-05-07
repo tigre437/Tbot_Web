@@ -300,14 +300,14 @@ const plans = [
         highlight: false,
         badge: null,
         features: [
-            'Todo lo de Pro',
+            'Todo lo del Plan Pro',
             'API personalizada',
             'Módulos exclusivos',
             'Bot personalizado (nombre/avatar)',
             'Soporte 24/7 dedicado',
             'SLA garantizado',
         ],
-        cta: 'Contratar',
+        cta: 'Contactar',
         ctaClass: 'btn-secondary',
     },
 ]
@@ -329,8 +329,8 @@ function Pricing() {
                 alert('Error al iniciar el proceso de pago. Por favor, inténtalo de nuevo.')
             }
         } else if (planName === 'Enterprise') {
-            // For Enterprise, we could redirect to a contact form or open a mailto link
-            window.open('mailto:contact@tbot.app?subject=Enterprise Plan Inquiry', '_blank')
+            // For Enterprise, redirect to TBot Discord
+            window.open('https://discord.gg/qA3BBQRpH6', '_blank')
         }
     }
 

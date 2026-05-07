@@ -8,6 +8,7 @@ import ServerConfig from './pages/ServerConfig'
 import AdminStats from './pages/AdminStats'
 import AuthCallback from './pages/AuthCallback'
 import PaymentStatus from './pages/PaymentStatus'
+import PaymentRedirectModal from './components/PaymentRedirectModal'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -62,8 +63,19 @@ function App() {
   return (
     <AuthProvider>
       <AppRoutes />
+      <PaymentRedirectModalWrapper />
     </AuthProvider>
   )
+}
+
+function PaymentRedirectModalWrapper() {
+  const { paymentLoading } = useAuth()
+  
+  if (paymentLoading) {
+    return <PaymentRedirectModal />
+  }
+  
+  return null
 }
 
 export default App
