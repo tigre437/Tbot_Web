@@ -39,8 +39,20 @@ export function AuthProvider({ children }) {
         setUser(userData)
     }
 
+    const createPaymentSession = async (planType = 'monthly') => {
+        try {
+            const response = await api.post('/payment/create-checkout-session', {
+                plan_type: planType
+            })
+            window.location.href = response.data.url
+        } catch (error) {
+            console.error('Error creating payment session:', error)
+            throw error
+        }
+    }
+
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout, setTokenAndUser }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, setTokenAndUser, createPaymentSession }}>
             {children}
         </AuthContext.Provider>
     )

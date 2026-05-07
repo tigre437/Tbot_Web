@@ -115,11 +115,19 @@ function ServerCard({ server }) {
 }
 
 export default function Dashboard() {
-    const { user } = useAuth()
+    const { user, createPaymentSession } = useAuth()
     const [servers, setServers] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
     const [refreshing, setRefreshing] = useState(false)
+
+    const handleUpgradeClick = async () => {
+        try {
+            await createPaymentSession('monthly')
+        } catch (error) {
+            alert('Error al iniciar el proceso de pago. Por favor, inténtalo de nuevo.')
+        }
+    }
 
     const fetchServers = async (showRefresh = false) => {
         if (showRefresh) setRefreshing(true)
@@ -185,6 +193,19 @@ export default function Dashboard() {
                             </span>
                             <span className="dashboard__qs-label">Como dueño</span>
                         </div>
+                        {user?.plan === 'free' && (
+                            <div className="dashboard__qs-card dashboard__qs-card--upgrade">
+                                <span className="dashboard__qs-num" style={{ color: 'var(--blurple)' }}>
+                                    <Crown size={16} />
+                                </span>
+                                <button 
+                                    onClick={handleUpgradeClick}
+                                    className="dashboard__upgrade-btn"
+                                >
+                                    Mejorar ahora
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
