@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import ServerConfig from './pages/ServerConfig'
 import AdminStats from './pages/AdminStats'
 import AuthCallback from './pages/AuthCallback'
+import PaymentStatus from './pages/PaymentStatus'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -49,6 +50,8 @@ function AppRoutes() {
             <AdminStats />
           </ProtectedRoute>
         } />
+        <Route path="/payment/success" element={<PaymentStatus status="success" />} />
+        <Route path="/payment/cancel" element={<PaymentStatus status="cancel" />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

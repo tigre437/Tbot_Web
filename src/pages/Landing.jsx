@@ -273,9 +273,8 @@ const plans = [
             'Soporte prioritario',
             'Estadísticas avanzadas',
         ],
-        cta: 'Próximamente',
+        cta: 'Empezar ahora',
         ctaClass: 'btn-primary',
-        disabled: true,
     },
     {
         name: 'Enterprise',
@@ -291,9 +290,8 @@ const plans = [
             'Soporte 24/7 dedicado',
             'SLA garantizado',
         ],
-        cta: 'Próximamente',
+        cta: 'Contratar',
         ctaClass: 'btn-secondary',
-        disabled: true,
     },
 ]
 

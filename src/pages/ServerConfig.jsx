@@ -36,6 +36,24 @@ function ProBadge({ size = 10 }) {
 }
 
 function ProGuard({ isPro, children, fallback = null, featureName = "esta función" }) {
+    const { serverId } = useParams()
+    const [loading, setLoading] = useState(null) // 'monthly' | 'annual' | null
+    const [selectedPlan, setSelectedPlan] = useState('annual')
+
+    const handleUpgrade = async (planType) => {
+        setLoading(planType)
+        try {
+            const res = await api.post(`/payment/create-checkout-session/${serverId}`, {
+                plan_type: planType
+            })
+            window.location.href = res.data.url
+        } catch (e) {
+            alert('Error al iniciar el pago: ' + (e.response?.data?.detail || e.message))
+        } finally {
+            setLoading(null)
+        }
+    }
+
     if (isPro) return children
     
     if (fallback) return fallback
@@ -46,7 +64,33 @@ function ProGuard({ isPro, children, fallback = null, featureName = "esta funci�
                 <Sparkles size={24} style={{ color: 'var(--yellow)' }} />
                 <h3>Función Premium</h3>
                 <p>Mejora a <strong>TBot Pro</strong> para desbloquear {featureName} y llevar tu servidor al siguiente nivel.</p>
-                <Link to="/#pricing" className="btn btn-primary btn-sm">Ver planes Pro</Link>
+                
+                <div className="plan-selector">
+                    <button 
+                        className={`plan-option ${selectedPlan === 'monthly' ? 'plan-option--active' : ''}`}
+                        onClick={() => setSelectedPlan('monthly')}
+                    >
+                        <span className="plan-option__name">Mensual</span>
+                        <span className="plan-option__price">4.99€<small>/mes</small></span>
+                    </button>
+                    <button 
+                        className={`plan-option ${selectedPlan === 'annual' ? 'plan-option--active' : ''}`}
+                        onClick={() => setSelectedPlan('annual')}
+                    >
+                        <div className="plan-option__badge">¡Ahorra 20%!</div>
+                        <span className="plan-option__name">Anual</span>
+                        <span className="plan-option__price">47.90€<small>/año</small></span>
+                    </button>
+                </div>
+
+                <button 
+                    className="btn btn-primary" 
+                    onClick={() => handleUpgrade(selectedPlan)}
+                    disabled={!!loading}
+                    style={{ width: '100%', maxWidth: '300px', marginTop: '0.5rem' }}
+                >
+                    {loading ? <><Loader2 size={14} className="spin" /> Redirigiendo...</> : `Suscribirse ${selectedPlan === 'monthly' ? 'Mensual' : 'Anual'}`}
+                </button>
             </div>
         </div>
     )
@@ -858,7 +902,18 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                         <div className="pro-lock-inline">
                             <Sparkles size={16} />
                             <span>Esta función requiere <strong>TBot Pro</strong></span>
-                            <Link to="/#pricing" className="btn btn-primary btn-xs" style={{ marginLeft: 'auto' }}>Mejorar ahora</Link>
+                            <button 
+                                className="btn btn-primary btn-xs" 
+                                style={{ marginLeft: 'auto' }}
+                                onClick={async () => {
+                                    try {
+                                        const res = await api.post(`/payment/create-checkout-session/${guildId}`)
+                                        window.location.href = res.data.url
+                                    } catch (e) { alert('Error: ' + e.message) }
+                                }}
+                            >
+                                Mejorar ahora
+                            </button>
                         </div>
                     )}
 
@@ -1456,7 +1511,18 @@ function VoiceConfig({ guildId, channels, plan }) {
                         <div className="pro-lock-inline">
                             <Sparkles size={16} />
                             <span>La gestión de voz dinámica requiere <strong>TBot Pro</strong></span>
-                            <Link to="/#pricing" className="btn btn-primary btn-xs" style={{ marginLeft: 'auto' }}>Mejorar ahora</Link>
+                            <button 
+                                className="btn btn-primary btn-xs" 
+                                style={{ marginLeft: 'auto' }}
+                                onClick={async () => {
+                                    try {
+                                        const res = await api.post(`/payment/create-checkout-session/${guildId}`)
+                                        window.location.href = res.data.url
+                                    } catch (e) { alert('Error: ' + e.message) }
+                                }}
+                            >
+                                Mejorar ahora
+                            </button>
                         </div>
                     )}
 
