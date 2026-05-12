@@ -946,6 +946,83 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                     </p>
                     <TranscriptsList guildId={guildId} panels={panels} />
                 </div>
+            ) : tab === 'close-request' ? (
+                <div className="mod-block">
+                    <div className="mod-block__header">
+                        <div className="mod-block__title-group">
+                            <Clock size={20} className="mod-block__icon" />
+                            <h4>Solicitud de Cierre Automático</h4>
+                        </div>
+                        <div className="mod-switch">
+                            <label className="switch">
+                                <input type="checkbox" checked={closeRequestForm.enabled} 
+                                    onChange={e => setCloseRequestForm(s => ({ ...s, enabled: e.target.checked }))} />
+                                <span className="slider round"></span>
+                            </label>
+                            <span className="switch-label">{closeRequestForm.enabled ? 'Activado' : 'Desactivado'}</span>
+                        </div>
+                    </div>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: '1.5rem' }}>
+                        Configura el mensaje y comportamiento cuando un staff solicita el cierre de un ticket usando el comando <code>/requestclose</code>.
+                    </p>
+
+                    <div className={`form-grid ${!closeRequestForm.enabled ? 'disabled-section' : ''}`}>
+                        <div className="form-field form-field--full">
+                            <div className="form-field__label-row">
+                                <label>Título del Embed</label>
+                                <CharCounter current={closeRequestForm.title.length} max={256} />
+                            </div>
+                            <input className="config-input" value={closeRequestForm.title} 
+                                onChange={e => setCloseRequestForm(s => ({ ...s, title: e.target.value }))} 
+                                placeholder="Ej: Ticket Close Request" />
+                        </div>
+
+                        <div className="form-field form-field--full">
+                            <div className="form-field__label-row">
+                                <label>Mensaje de solicitud</label>
+                                <CharCounter current={closeRequestForm.message.length} max={4096} />
+                            </div>
+                            <textarea className="config-textarea" rows={4} value={closeRequestForm.message}
+                                onChange={e => setCloseRequestForm(s => ({ ...s, message: e.target.value }))}
+                                placeholder="Glad we could help you out!..." />
+                            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Variables: </span>
+                                <code style={{ fontSize: '0.7rem', color: 'var(--blurple-light)' }}>{"{{user}}"}</code>
+                                <code style={{ fontSize: '0.7rem', color: 'var(--blurple-light)' }}>{"{{staff}}"}</code>
+                            </div>
+                        </div>
+
+                        <div className="form-field form-field--full">
+                            <div className="form-field__label-row">
+                                <label>Pie de página (Footer)</label>
+                                <CharCounter current={closeRequestForm.footer.length} max={2048} />
+                            </div>
+                            <input className="config-input" value={closeRequestForm.footer}
+                                onChange={e => setCloseRequestForm(s => ({ ...s, footer: e.target.value }))}
+                                placeholder="Please let us know if you want to proceed..." />
+                        </div>
+
+                        <div className="form-field">
+                            <label>URL de Reseña (Opcional)</label>
+                            <input className="config-input" value={closeRequestForm.reviewUrl || ''}
+                                onChange={e => setCloseRequestForm(s => ({ ...s, reviewUrl: e.target.value }))}
+                                placeholder="https://trustpilot.com/..." />
+                        </div>
+
+                        <div className="form-field">
+                            <label>Mensaje de Auto-cierre</label>
+                            <input className="config-input" value={closeRequestForm.autoCloseMessage}
+                                onChange={e => setCloseRequestForm(s => ({ ...s, autoCloseMessage: e.target.value }))}
+                                placeholder="Ticket will be closed automatically..." />
+                        </div>
+                    </div>
+
+                    <div className="form-actions" style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                        <button className="btn btn-primary" onClick={handleSaveCloseRequest} disabled={closeRequestSaving}>
+                            {closeRequestSaving ? <><Loader2 size={16} className="spin" /> Guardando...</> : <><Save size={16} /> Guardar Configuración</>}
+                        </button>
+                    </div>
+                </div>
             ) : (
                 <div className="mod-block">
                     <div className="mod-block__header">
