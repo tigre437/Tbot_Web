@@ -447,6 +447,17 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
         allowed_role_ids: [], mention_role_ids: [], image_url: '', footer_text: ''
     })
 
+    // ── Close Request state ──
+    const [closeRequestForm, setCloseRequestForm] = useState({
+        enabled: true,
+        title: 'Ticket Close Request',
+        message: 'Glad we could help you out! If everything\'s all good, I\'ll go ahead and close this ticket.',
+        footer: 'Please let us know if you want to proceed with this closure request.',
+        reviewUrl: '',
+        autoCloseMessage: 'Ticket will be closed automatically if no response is received.'
+    })
+    const [closeRequestSaving, setCloseRequestSaving] = useState(false)
+
     // ── Embed editor state ──
     const [editEmbedPanel, setEditEmbedPanel] = useState(null)  // panel id being edited
     const [embedForm, setEmbedForm] = useState({})
@@ -517,6 +528,9 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
 
         try { const res = await api.get(`/servers/${guildId}/tickets/schedule`); setScheduleForm(res.data) }
         catch { }
+
+        try { const res = await api.get(`/servers/${guildId}/tickets/close-request`); setCloseRequestForm(res.data) }
+        catch { }
         finally { setLoading(false) }
     }
     useEffect(() => { load() }, [guildId])
@@ -528,6 +542,15 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
             showToast('✅ Horario de soporte guardado correctamente.')
         } catch (e) { showToast('Error al guardar el horario.', 'error') }
         finally { setScheduleSaving(false) }
+    }
+
+    const handleSaveCloseRequest = async () => {
+        setCloseRequestSaving(true)
+        try {
+            await api.post(`/servers/${guildId}/tickets/close-request`, closeRequestForm)
+            showToast('✅ Configuración de cierre automático guardada.')
+        } catch (e) { showToast('Error al guardar la configuración.', 'error') }
+        finally { setCloseRequestSaving(false) }
     }
 
     const handleCreate = async () => {
@@ -564,6 +587,7 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                 <button className={`mod-tab ${tab === 'panels' ? 'mod-tab--active' : ''}`} onClick={() => setTab('panels')}>Paneles</button>
                 <button className={`mod-tab ${tab === 'transcripts' ? 'mod-tab--active' : ''}`} onClick={() => setTab('transcripts')}>Transcripciones</button>
                 <button className={`mod-tab ${tab === 'schedule' ? 'mod-tab--active' : ''}`} onClick={() => setTab('schedule')}>Horarios</button>
+                <button className={`mod-tab ${tab === 'close-request' ? 'mod-tab--active' : ''}`} onClick={() => setTab('close-request')}>Cierre Auto</button>
             </div>
 
             {tab === 'panels' ? (
