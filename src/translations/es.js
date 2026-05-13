@@ -11,6 +11,11 @@ export const es = {
     cancel: "Cancelar",
     confirm: "Confirmar"
   },
+  landing: {
+    members: "Miembros",
+    commands: "Comandos",
+    tickets: "Tickets"
+  },
   navbar: {
     features: "Funciones",
     pricing: "Planes",

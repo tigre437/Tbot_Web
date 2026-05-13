@@ -116,9 +116,9 @@ function DashboardPreview() {
                 </div>
                 <div className="dp__cards">
                     {[
-                        { color: '#5865F2', label: 'Tickets', val: '24' },
-                        { color: '#57F287', label: 'Miembros', val: '1.2k' },
-                        { color: '#EB459E', label: 'Comandos', val: '847' },
+                        { color: '#5865F2', label: t('landing.tickets'), val: '24' },
+                        { color: '#57F287', label: t('landing.members'), val: '1.2k' },
+                        { color: '#EB459E', label: t('landing.commands'), val: '847' },
                     ].map(c => (
                         <div key={c.label} className="dp__card" style={{ '--c': c.color }}>
                             <div className="dp__card-val">{c.val}</div>
