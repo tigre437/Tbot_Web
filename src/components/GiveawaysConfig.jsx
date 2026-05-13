@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { 
     Plus, Trash2, Calendar, Gift, Users, Shield, 
     Bell, Image as ImageIcon, Link as LinkIcon, 
-    Info, Clock, Save, X, Loader2, Sparkles, ChevronDown, Settings, Globe, Search, Hash
+    Info, Clock, Save, X, Loader2, Sparkles, ChevronDown, Settings, Globe, Search, Hash, Edit3
 } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import api from '../utils/api'
@@ -14,6 +14,7 @@ export default function GiveawaysConfig({ guildId, plan }) {
     const [showForm, setShowForm] = useState(false)
     const [saving, setSaving] = useState(false)
     const [activeSection, setActiveSection] = useState('basic')
+    const [editingId, setEditingId] = useState(null)
     
     // Announce Modal States
     const [showAnnounceModal, setShowAnnounceModal] = useState(false)
@@ -23,7 +24,7 @@ export default function GiveawaysConfig({ guildId, plan }) {
     const [selectedGiveaway, setSelectedGiveaway] = useState(null)
     const [announcing, setAnnouncing] = useState(false)
 
-    const [form, setForm] = useState({
+    const DEFAULT_FORM = {
         host_name: '',
         host_invite: '',
         host_id: '',
@@ -41,7 +42,9 @@ export default function GiveawaysConfig({ guildId, plan }) {
         claim_expiration_hours: 24,
         signup_mode: false,
         webhook_url: ''
-    })
+    }
+
+    const [form, setForm] = useState(DEFAULT_FORM)
 
     const fetchGiveaways = async () => {
         try {
@@ -58,7 +61,6 @@ export default function GiveawaysConfig({ guildId, plan }) {
         setLoadingChannels(true)
         try {
             const res = await api.get(`/servers/${guildId}/channels`)
-            // El backend devuelve { text: [], categories: [], voice: [] }
             setChannels(res.data.text || [])
         } catch (e) {
             console.error("Error fetching channels", e)
@@ -110,6 +112,37 @@ export default function GiveawaysConfig({ guildId, plan }) {
         })
     }
 
+    const handleEdit = (g) => {
+        // Convert dates to string format for datetime-local
+        const formatForInput = (d) => {
+            if (!d) return ''
+            try {
+                const date = new Date(d)
+                return date.toISOString().slice(0, 16)
+            } catch { return '' }
+        }
+
+        setForm({
+            ...DEFAULT_FORM,
+            ...g,
+            start_date: formatForInput(g.start_date),
+            end_date: formatForInput(g.end_date)
+        })
+        setEditingId(g._id)
+        setShowForm(true)
+        setActiveSection('basic')
+    }
+
+    const handleDelete = async (id) => {
+        if (!confirm("¿Estás seguro de que quieres eliminar este sorteo? Esta acción no se puede deshacer.")) return
+        try {
+            await api.delete(`/servers/${guildId}/giveaways/${id}`)
+            fetchGiveaways()
+        } catch (e) {
+            alert("Error al eliminar el sorteo")
+        }
+    }
+
     const handleSave = async () => {
         setSaving(true)
         try {
@@ -118,8 +151,16 @@ export default function GiveawaysConfig({ guildId, plan }) {
                 setSaving(false)
                 return
             }
-            await api.post(`/servers/${guildId}/giveaways`, form)
+
+            if (editingId) {
+                await api.put(`/servers/${guildId}/giveaways/${editingId}`, form)
+            } else {
+                await api.post(`/servers/${guildId}/giveaways`, form)
+            }
+
             setShowForm(false)
+            setEditingId(null)
+            setForm(DEFAULT_FORM)
             fetchGiveaways()
         } catch (e) {
             alert(t('common.error') || "Error al guardar")
@@ -141,7 +182,15 @@ export default function GiveawaysConfig({ guildId, plan }) {
                     <h4>{t('server_config.modules.giveaways.label')}</h4>
                     <button 
                         className="btn btn-primary btn-sm"
-                        onClick={() => setShowForm(!showForm)}
+                        onClick={() => {
+                            if (showForm) {
+                                setShowForm(false)
+                                setEditingId(null)
+                                setForm(DEFAULT_FORM)
+                            } else {
+                                setShowForm(true)
+                            }
+                        }}
                     >
                         {showForm ? <><X size={14} /> {t('common.cancel')}</> : <><Plus size={14} /> Nuevo Sorteo</>}
                     </button>
@@ -309,9 +358,13 @@ export default function GiveawaysConfig({ guildId, plan }) {
                         )}
 
                         <div className="form-actions" style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem', marginTop: '1rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                            <button className="btn btn-secondary" onClick={() => setShowForm(false)}>{t('common.cancel')}</button>
+                            <button className="btn btn-secondary" onClick={() => {
+                                setShowForm(false)
+                                setEditingId(null)
+                                setForm(DEFAULT_FORM)
+                            }}>{t('common.cancel')}</button>
                             <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                                {saving ? <><Loader2 className="spin" size={16} /> Guardando...</> : <><Save size={16} /> Guardar Sorteo</>}
+                                {saving ? <><Loader2 className="spin" size={16} /> Guardando...</> : <><Save size={16} /> {editingId ? 'Actualizar Sorteo' : 'Guardar Sorteo'}</>}
                             </button>
                         </div>
                     </div>
@@ -343,7 +396,20 @@ export default function GiveawaysConfig({ guildId, plan }) {
                                             >
                                                 <Bell size={14} /> Anunciar
                                             </button>
-                                            <button className="btn btn-secondary btn-xs"><Settings size={14} /></button>
+                                            <button 
+                                                className="btn btn-secondary btn-xs"
+                                                onClick={() => handleEdit(g)}
+                                                title="Editar Sorteo"
+                                            >
+                                                <Edit3 size={14} />
+                                            </button>
+                                            <button 
+                                                className="btn btn-secondary btn-xs text-red"
+                                                onClick={() => handleDelete(g._id)}
+                                                title="Eliminar Sorteo"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
