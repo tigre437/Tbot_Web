@@ -28,9 +28,9 @@ function Hero() {
                 </div>
 
                 <h1 className="hero__title">
-                    {t('hero.title').split(' ').slice(0, 4).join(' ')}<br />
-                    {t('hero.title').split(' ').slice(4, 6).join(' ')}<br />
-                    <span className="gradient-text">{t('hero.title').split(' ').slice(6).join(' ')}</span>
+                    {t('hero.title_part1')}<br />
+                    {t('hero.title_part2')}<br />
+                    <span className="gradient-text">{t('hero.title_highlight')}</span>
                 </h1>
 
                 <p className="hero__subtitle">
@@ -386,14 +386,14 @@ function Pricing() {
                             </ul>
                             {user ? (
                                 (plan.key === 'pro' || plan.key === 'pro_annual') ? (
-                                    <button 
+                                    <button
                                         onClick={() => handleUpgradeClick(plan.key === 'pro' ? 'Pro' : 'Pro Anual')}
                                         className={`btn ${plan.ctaClass} pricing-card__cta`}
                                     >
                                         {t(`pricing.plans.${plan.key}.cta`)}
                                     </button>
                                 ) : plan.key === 'enterprise' ? (
-                                    <button 
+                                    <button
                                         onClick={() => handleUpgradeClick('Enterprise')}
                                         className={`btn ${plan.ctaClass} pricing-card__cta`}
                                     >
@@ -405,8 +405,8 @@ function Pricing() {
                                     </Link>
                                 )
                             ) : (
-                                <button 
-                                    onClick={login} 
+                                <button
+                                    onClick={login}
                                     className={`btn ${plan.ctaClass} pricing-card__cta`}
                                 >
                                     {t(`pricing.plans.${plan.key}.cta`)}

@@ -19,8 +19,10 @@ export const es = {
   },
   hero: {
     badge: "Versión 2.0 — Más potente que nunca",
-    title: "El bot de Discord que tu servidor necesitaba",
-    subtitle: "TBot lleva la gestión de tu servidor al siguiente nivel. Tickets inteligentes, roles automáticos, bienvenidas personalizadas y mucho más, todo centralizado en un dashboard moderno.",
+    title_part1: "Potencia tu",
+    title_part2: "comunidad de Discord",
+    title_highlight: "con TBot",
+    subtitle: "TBot lleva la gestión de tu servidor al siguiente nivel. Tickets inteligentes, autoroles automáticos, bienvenidas personalizadas y mucho más, todo centralizado en un dashboard moderno.",
     cta_dashboard: "Ir al Dashboard",
     cta_discord: "Añadir a Discord — Es gratis",
     cta_features: "Ver funciones",

@@ -19,7 +19,9 @@ export const en = {
   },
   hero: {
     badge: "Version 2.0 — More powerful than ever",
-    title: "The Discord bot your server needed",
+    title_part1: "Power up your",
+    title_part2: "Discord community",
+    title_highlight: "with TBot",
     subtitle: "TBot takes your server management to the next level. Smart tickets, automatic roles, personalized welcomes and much more, all centralized in a modern dashboard.",
     cta_dashboard: "Go to Dashboard",
     cta_discord: "Add to Discord — It's free",
