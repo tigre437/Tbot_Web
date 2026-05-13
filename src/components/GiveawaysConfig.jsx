@@ -58,8 +58,8 @@ export default function GiveawaysConfig({ guildId, plan }) {
         setLoadingChannels(true)
         try {
             const res = await api.get(`/servers/${guildId}/channels`)
-            // Filtrar solo canales de texto (tipo 0)
-            setChannels(res.data.filter(c => c.type === 0 || c.type === 5))
+            // El backend devuelve { text: [], categories: [], voice: [] }
+            setChannels(res.data.text || [])
         } catch (e) {
             console.error("Error fetching channels", e)
         } finally {
