@@ -24,12 +24,6 @@ export default function GiveawayDetail() {
             try {
                 const res = await api.get(`/giveaways/${id}`)
                 setGiveaway(res.data)
-                
-                // If user logged in, check if already joined
-                if (user) {
-                    const parts = await api.get(`/servers/${res.data.guild_id}/giveaways`) // Need better endpoint for check
-                    // For now we'll rely on the enter response
-                }
             } catch (e) {
                 console.error(e)
             } finally {
@@ -37,7 +31,7 @@ export default function GiveawayDetail() {
             }
         }
         fetchDetail()
-    }, [id, user])
+    }, [id])
 
     const handleEnter = async () => {
         if (!user) return login()
@@ -60,9 +54,10 @@ export default function GiveawayDetail() {
 
     return (
         <div className="giveaway-detail-page">
-            <Navbar />
             <div className="container detail-container">
-                <Link to="/giveaways" className="back-link"><ArrowLeft size={16} /> Volver a sorteos</Link>
+                <Link to="/giveaways" className="back-link">
+                    <ArrowLeft size={16} /> Volver a sorteos
+                </Link>
                 
                 <div className="detail-layout">
                     <div className="detail-main">
@@ -111,7 +106,7 @@ export default function GiveawayDetail() {
                                                 <span>{w.username}</span>
                                                 <small style={{ opacity: 0.5, marginLeft: '8px' }}>({w.id})</small>
                                             </div>
-                                            {user && user.id === w.id && !joined && (
+                                            {user && user.id === w.id && (
                                                 <button className="btn btn-primary btn-xs" onClick={async () => {
                                                     try {
                                                         await api.post(`/giveaways/${id}/claim`)
@@ -135,7 +130,6 @@ export default function GiveawayDetail() {
                                     <div className="countdown-wrap">
                                         <span className="countdown-label">Termina en:</span>
                                         <div className="countdown-time">
-                                            {/* Timer logic would go here */}
                                             {new Date(giveaway.end_date).toLocaleDateString()}
                                         </div>
                                     </div>
@@ -192,7 +186,7 @@ export default function GiveawayDetail() {
 
                         <div className="sidebar-card host-sidebar-card">
                              <h4>Host Information</h4>
-                             <p>Este sorteo es organizado de forma externa por {giveaway.host_name}.</p>
+                             <p>Este sorteo es organizado por {giveaway.host_name}.</p>
                              {giveaway.host_invite && (
                                 <a href={giveaway.host_invite} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm w-full">
                                     Unirse a su Servidor
