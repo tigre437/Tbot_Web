@@ -7,13 +7,11 @@ import {
 } from 'lucide-react'
 import api from '../utils/api'
 import { useAuth } from '../context/AuthContext'
-import { useLanguage } from '../context/LanguageContext'
 import Navbar from '../components/Navbar'
 import './Giveaways.css'
 
 export default function GiveawayDetail() {
     const { id } = useParams()
-    const { t } = useLanguage()
     const { user, login } = useAuth()
     const [giveaway, setGiveaway] = useState(null)
     const [loading, setLoading] = useState(true)

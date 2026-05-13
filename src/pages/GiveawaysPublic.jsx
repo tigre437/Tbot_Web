@@ -2,12 +2,10 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Gift, Clock, Users, ArrowRight, Loader2, Sparkles } from 'lucide-react'
 import api from '../utils/api'
-import { useLanguage } from '../context/LanguageContext'
 import Navbar from '../components/Navbar'
 import './Giveaways.css'
 
 export default function GiveawaysPublic() {
-    const { t } = useLanguage()
     const [giveaways, setGiveaways] = useState([])
     const [loading, setLoading] = useState(true)
 
