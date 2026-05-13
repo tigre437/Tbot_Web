@@ -854,9 +854,9 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                 <div className="form-field">
                                     <label>Tipo de panel</label>
                                     <div className="form-radio-group">
-                                        {['boton', 'dropdown'].map(t => (
-                                            <button key={t} type="button" className={`form-radio ${form.tipo === t ? 'form-radio--active' : ''}`} onClick={() => setForm(p => ({ ...p, tipo: t }))}>
-                                                {t === 'boton' ? '🔘 Botón' : '📋 Desplegable'}
+                                        {['boton', 'dropdown'].map(tp => (
+                                            <button key={tp} type="button" className={`form-radio ${form.tipo === tp ? 'form-radio--active' : ''}`} onClick={() => setForm(p => ({ ...p, tipo: tp }))}>
+                                                {tp === 'boton' ? '🔘 Botón' : '📋 Desplegable'}
                                             </button>
                                         ))}
                                     </div>
