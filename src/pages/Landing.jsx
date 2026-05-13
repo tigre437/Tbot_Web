@@ -95,6 +95,7 @@ function Hero() {
 }
 
 function DashboardPreview() {
+    const { t } = useLanguage()
     return (
         <div className="dp">
             <div className="dp__sidebar">
