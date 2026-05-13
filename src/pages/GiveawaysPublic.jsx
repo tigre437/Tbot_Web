@@ -12,7 +12,7 @@ export default function GiveawaysPublic() {
     useEffect(() => {
         const fetchPublic = async () => {
             try {
-                const res = await api.get('/giveaways/public')
+                const res = await api.get('/giveaways')
                 setGiveaways(res.data)
             } catch (e) {
                 console.error(e)

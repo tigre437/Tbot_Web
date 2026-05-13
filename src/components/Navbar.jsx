@@ -51,6 +51,11 @@ export default function Navbar() {
                                 </Link>
                             </li>
                             <li>
+                                <Link to="/giveaways" className={`navbar__link ${isActive('/giveaways') ? 'navbar__link--active' : ''}`}>
+                                    Sorteos
+                                </Link>
+                            </li>
+                            <li>
                                 <Link to="/admin" className={`navbar__link ${isActive('/admin') ? 'navbar__link--active' : ''}`}>
                                     {t('navbar.support')}
                                 </Link>
@@ -123,6 +128,7 @@ export default function Navbar() {
                     {user && (
                         <>
                             <Link to="/dashboard" className="navbar__mobile-link">{t('common.dashboard')}</Link>
+                            <Link to="/giveaways" className="navbar__mobile-link">Sorteos</Link>
                             <Link to="/admin" className="navbar__mobile-link">{t('navbar.support')}</Link>
                             <button onClick={logout} className="navbar__mobile-link navbar__mobile-link--danger">
                                 {t('common.logout')}

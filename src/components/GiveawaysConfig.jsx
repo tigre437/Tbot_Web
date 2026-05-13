@@ -69,6 +69,18 @@ export default function GiveawaysConfig({ guildId, plan }) {
         })
     }
 
+    const handleAnnounce = async (giveawayId) => {
+        const channelId = prompt("Introduce el ID del canal de Discord donde quieres anunciar el sorteo:")
+        if (!channelId) return
+
+        try {
+            await api.post(`/giveaways/${giveawayId}/announce`, { channel_id: channelId })
+            alert("¡Sorteo anunciado con éxito en Discord!")
+        } catch (e) {
+            alert("Error al anunciar el sorteo. Verifica el ID del canal y los permisos del bot.")
+        }
+    }
+
     const handleSave = async () => {
         setSaving(true)
         try {
@@ -298,7 +310,14 @@ export default function GiveawaysConfig({ guildId, plan }) {
                                                 <span className="panel-item__ch"><Users size={12} /> {g.winners?.length || 0} ganadores</span>
                                             </div>
                                         </div>
-                                        <div className="panel-item__actions">
+                                        <div className="panel-item__actions" style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <button 
+                                                className="btn btn-primary btn-xs"
+                                                onClick={() => handleAnnounce(g._id)}
+                                                title="Anunciar en Discord"
+                                            >
+                                                <Bell size={14} /> Anunciar
+                                            </button>
                                             <button className="btn btn-secondary btn-xs"><Settings size={14} /></button>
                                         </div>
                                     </div>
