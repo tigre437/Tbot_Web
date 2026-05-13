@@ -394,18 +394,18 @@ function TranscriptsList({ guildId, panels = [] }) {
                 </div>
             ) : !error && (
                 <div className="panel-list">
-                    {filtered.map(t => (
-                        <div key={t.id} className="panel-item">
+                    {filtered.map(tr => (
+                        <div key={tr.id} className="panel-item">
                             <div className="panel-item__icon" style={{ background: 'rgba(235, 69, 158, 0.12)', color: '#EB459E' }}><BookOpen size={18} /></div>
                             <div className="panel-item__info">
-                                <span className="panel-item__title">{t('server_config.tickets.transcripts.ticket')}: {t.ticket_name}</span>
+                                <span className="panel-item__title">{t('server_config.tickets.transcripts.ticket')}: {tr.ticket_name}</span>
                                 <span className="panel-item__meta">
-                                    <span className="badge badge-blurple" style={{ fontSize: '0.65rem' }}>👤 {t.author_id}</span>
-                                    {t.closed_by_name && <span className="panel-item__ch">{t('server_config.tickets.transcripts.closed_by')}: {t.closed_by_name}</span>}
-                                    <span className="panel-item__counter">📅 {new Date(t.created_at).toLocaleDateString()}</span>
+                                    <span className="badge badge-blurple" style={{ fontSize: '0.65rem' }}>👤 {tr.author_id}</span>
+                                    {tr.closed_by_name && <span className="panel-item__ch">{t('server_config.tickets.transcripts.closed_by')}: {tr.closed_by_name}</span>}
+                                    <span className="panel-item__counter">📅 {new Date(tr.created_at).toLocaleDateString()}</span>
                                 </span>
                             </div>
-                            <button className="btn btn-secondary btn-sm" onClick={() => viewTranscript(t.id)}>
+                            <button className="btn btn-secondary btn-sm" onClick={() => viewTranscript(tr.id)}>
                                 <Bot size={14} /> {t('server_config.tickets.transcripts.view_chat')}
                             </button>
                         </div>
