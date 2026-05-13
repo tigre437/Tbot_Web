@@ -206,7 +206,8 @@ export const es = {
       voice: { label: "Canales de Voz", desc: "Canales dinámicos" },
       admin_chat: { label: "Admin Chat", desc: "Chat privado admins" },
       moderation: { label: "Moderación", desc: "Herramientas mod" },
-      levels: { label: "Niveles & XP", desc: "Roles por tiempo" }
+      levels: { label: "Niveles & XP", desc: "Roles por tiempo" },
+      giveaways: { label: "Sorteos", desc: "Gestión de giveaways" }
     },
     pro_guard: {
       title: "Función Premium",

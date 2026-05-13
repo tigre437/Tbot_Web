@@ -8,6 +8,8 @@ import ServerConfig from './pages/ServerConfig'
 import AdminStats from './pages/AdminStats'
 import AuthCallback from './pages/AuthCallback'
 import PaymentStatus from './pages/PaymentStatus'
+import GiveawaysPublic from './pages/GiveawaysPublic'
+import GiveawayDetail from './pages/GiveawayDetail'
 import PaymentRedirectModal from './components/PaymentRedirectModal'
 import { LanguageProvider } from './context/LanguageContext'
 
@@ -54,6 +56,9 @@ function AppRoutes() {
         } />
         <Route path="/payment/success" element={<PaymentStatus status="success" />} />
         <Route path="/payment/cancel" element={<PaymentStatus status="cancel" />} />
+        <Route path="/status" element={<PaymentStatus />} />
+        <Route path="/giveaways" element={<GiveawaysPublic />} />
+        <Route path="/giveaways/:id" element={<GiveawayDetail />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

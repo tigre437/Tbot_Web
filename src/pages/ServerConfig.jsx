@@ -8,6 +8,7 @@ import {
 import api from '../utils/api'
 import logoImg from '../assets/logo256.png'
 import ArrivalStudio from '../components/ArrivalStudio'
+import GiveawaysConfig from '../components/GiveawaysConfig'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import './ServerConfig.css'
@@ -20,6 +21,7 @@ const MODULES = [
     { id: 'admin_chat', icon: MessageSquare, color: '#00d4ff', key: 'admin_chat' },
     { id: 'moderation', icon: Shield, color: '#FF6B6B', key: 'moderation' },
     { id: 'levels', icon: Star, color: '#f5c518', key: 'levels' },
+    { id: 'giveaways', icon: Sparkles, color: '#FFD700', key: 'giveaways' },
 ]
 
 const MAX_FREE_LIMITS = {
@@ -1952,6 +1954,7 @@ function ConfigRenderer({ moduleId, guildId, channels, roles, plan }) {
         case 'welcome': return <WelcomeConfig guildId={guildId} channels={channels} plan={plan} />
         case 'voice': return <VoiceConfig guildId={guildId} channels={channels} plan={plan} />
         case 'levels': return <LevelsConfig guildId={guildId} channels={channels} roles={roles} plan={plan} />
+        case 'giveaways': return <GiveawaysConfig guildId={guildId} plan={plan} />
         default: return <GenericConfig module={mod} />
     }
 }
@@ -1967,7 +1970,8 @@ export default function ServerConfig() {
     const [loading, setLoading] = useState(true)
     const [enabledModules, setEnabledModules] = useState({
         tickets: true, autoroles: true, welcome: true,
-        voice: true, admin_chat: true, moderation: false
+        voice: true, admin_chat: true, moderation: false,
+        giveaways: false
     })
 
     useEffect(() => {
