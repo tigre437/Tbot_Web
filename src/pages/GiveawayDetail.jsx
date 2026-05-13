@@ -54,6 +54,7 @@ export default function GiveawayDetail() {
 
     return (
         <div className="giveaway-detail-page">
+            <Navbar />
             <div className="container detail-container">
                 <Link to="/giveaways" className="back-link">
                     <ArrowLeft size={16} /> Volver a sorteos
