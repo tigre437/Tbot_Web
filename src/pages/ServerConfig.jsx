@@ -1939,7 +1939,7 @@ function GenericConfig({ module }) {
     return (
         <div className="config-panel config-panel--empty">
             <module.icon size={40} style={{ color: module.color, opacity: 0.4 }} />
-            <h3>Configuración de {module.label}</h3>
+            <h3>Configuración de {t(`server_config.modules.${module.key}.label`)}</h3>
             <p>Este módulo se puede configurar próximamente desde el dashboard. Por ahora usa los comandos de Discord.</p>
         </div>
     )
@@ -2038,8 +2038,8 @@ export default function ServerConfig() {
                             onClick={() => setActiveModule(mod.id)}>
                             <div className="sc__module-icon" style={{ '--mc': mod.color }}><mod.icon size={18} /></div>
                             <div className="sc__module-info">
-                                <span className="sc__module-name">{mod.label}</span>
-                                <span className="sc__module-desc">{mod.desc}</span>
+                                <span className="sc__module-name">{t(`server_config.modules.${mod.key}.label`)}</span>
+                                <span className="sc__module-desc">{t(`server_config.modules.${mod.key}.desc`)}</span>
                             </div>
                             <div
                                 className={`sc__module-toggle ${enabledModules[mod.id] ? 'sc__module-toggle--on' : ''}`}

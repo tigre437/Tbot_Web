@@ -4,9 +4,11 @@ import {
     Bell, Image as ImageIcon, Link as LinkIcon, 
     Info, Clock, Save, X, Loader2, Sparkles, ChevronDown, Settings
 } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 import api from '../utils/api'
 
 export default function GiveawaysConfig({ guildId, plan }) {
+    const { t } = useLanguage()
     const [giveaways, setGiveaways] = useState([])
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
@@ -74,24 +76,24 @@ export default function GiveawaysConfig({ guildId, plan }) {
             setShowForm(false)
             fetchGiveaways()
         } catch (e) {
-            alert("Error al guardar el sorteo")
+            alert(t('common.error'))
         } finally {
             setSaving(false)
         }
     }
 
-    if (loading) return <div className="mod-loading"><Loader2 className="spin" /> Cargando sorteos...</div>
+    if (loading) return <div className="mod-loading"><Loader2 className="spin" /> {t('common.loading')}</div>
 
     return (
         <div className="mod-section">
             <div className="mod-block">
                 <div className="mod-block__header">
-                    <h4>Gestión de Sorteos</h4>
+                    <h4>{t('server_config.modules.giveaways.label')}</h4>
                     <button 
                         className="btn btn-primary btn-sm"
                         onClick={() => setShowForm(!showForm)}
                     >
-                        {showForm ? <><X size={14} /> Cancelar</> : <><Plus size={14} /> Nuevo Sorteo</>}
+                        {showForm ? <><X size={14} /> {t('common.cancel')}</> : <><Plus size={14} /> Nuevo Sorteo</>}
                     </button>
                 </div>
 
@@ -151,71 +153,10 @@ export default function GiveawaysConfig({ guildId, plan }) {
                             </div>
                         </div>
 
-                        <div className="form-section">
-                            <h5><Calendar size={16} /> Duración</h5>
-                            <div className="form-grid">
-                                <div className="form-field">
-                                    <label>Fecha Inicio (UTC)</label>
-                                    <input 
-                                        type="datetime-local" 
-                                        className="config-input" 
-                                        value={form.start_date}
-                                        onChange={e => setForm({...form, start_date: e.target.value})}
-                                    />
-                                </div>
-                                <div className="form-field">
-                                    <label>Fecha Fin (UTC)</label>
-                                    <input 
-                                        type="datetime-local" 
-                                        className="config-input" 
-                                        value={form.end_date}
-                                        onChange={e => setForm({...form, end_date: e.target.value})}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="form-section">
-                            <div className="section-header">
-                                <h5><Gift size={16} /> Premios</h5>
-                                <button className="btn btn-secondary btn-xs" onClick={handleAddPrize}>+ Añadir Premio</button>
-                            </div>
-                            {form.prizes.map((prize, idx) => (
-                                <div key={idx} className="prize-card">
-                                    <div className="form-grid">
-                                        <input 
-                                            placeholder="Nombre del premio"
-                                            className="config-input"
-                                            value={prize.name}
-                                            onChange={e => {
-                                                const newPrizes = [...form.prizes]
-                                                newPrizes[idx].name = e.target.value
-                                                setForm({...form, prizes: newPrizes})
-                                            }}
-                                        />
-                                        <input 
-                                            type="number" 
-                                            placeholder="Ganadores"
-                                            className="config-input"
-                                            value={prize.winner_count}
-                                            onChange={e => {
-                                                const newPrizes = [...form.prizes]
-                                                newPrizes[idx].winner_count = parseInt(e.target.value)
-                                                setForm({...form, prizes: newPrizes})
-                                            }}
-                                        />
-                                        {form.prizes.length > 1 && (
-                                            <button className="btn-icon text-red" onClick={() => handleRemovePrize(idx)}><Trash2 size={16} /></button>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
                         <div className="form-actions">
-                            <button className="btn btn-secondary" onClick={() => setShowForm(false)}>Cancelar</button>
+                            <button className="btn btn-secondary" onClick={() => setShowForm(false)}>{t('common.cancel')}</button>
                             <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                                {saving ? <Loader2 className="spin" size={16} /> : <Save size={16} />} Guardar
+                                {saving ? <Loader2 className="spin" size={16} /> : <Save size={16} />} {t('common.save')}
                             </button>
                         </div>
                     </div>
