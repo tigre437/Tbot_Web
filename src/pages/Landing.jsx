@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import {
     Ticket, Shield, Bell, Mic2, MessageSquare, Users,
     Star, CheckCircle2, Zap, ArrowRight, Bot, Sparkles,
@@ -12,6 +12,7 @@ import './Landing.css'
 /* ─── HERO ─── */
 function Hero() {
     const { user, login } = useAuth()
+    const { t } = useLanguage()
 
     return (
         <section className="hero">
@@ -22,53 +23,51 @@ function Hero() {
 
             <div className="container hero__content">
                 <div className="hero__badge badge badge-blurple">
-                    <Sparkles size={12} /> Versión 2.0 — Más potente que nunca
+                    <Sparkles size={12} /> {t('hero.badge')}
                 </div>
 
                 <h1 className="hero__title">
-                    El bot de Discord<br />
-                    que tu servidor<br />
-                    <span className="gradient-text">necesitaba</span>
+                    {t('hero.title').split(' ').slice(0, 4).join(' ')}<br />
+                    {t('hero.title').split(' ').slice(4, 6).join(' ')}<br />
+                    <span className="gradient-text">{t('hero.title').split(' ').slice(6).join(' ')}</span>
                 </h1>
 
                 <p className="hero__subtitle">
-                    TBot lleva la gestión de tu servidor al siguiente nivel. Tickets inteligentes,
-                    roles automáticos, bienvenidas personalizadas y mucho más, todo centralizado
-                    en un dashboard moderno.
+                    {t('hero.subtitle')}
                 </p>
 
                 <div className="hero__cta">
                     {user ? (
                         <Link to="/dashboard" className="btn btn-primary btn-lg">
-                            Ir al Dashboard <ArrowRight size={18} />
+                            {t('hero.cta_dashboard')} <ArrowRight size={18} />
                         </Link>
                     ) : (
                         <button onClick={login} className="btn btn-primary btn-lg hero__discord-btn">
                             <svg width="22" height="22" viewBox="0 0 71 55" fill="white" style={{ flexShrink: 0 }}>
                                 <path d="M60.1 4.9C55.6 2.8 50.8 1.2 45.8.4c-.6 1-1.2 2.4-1.7 3.5-5.3-.8-10.6-.8-15.8 0-.5-1.1-1.2-2.5-1.8-3.5C21.5 1.2 16.7 2.8 12.2 4.9 1.8 20.5-1.1 35.7.4 50.7c6 4.4 11.8 7 17.5 8.7 1.4-1.9 2.7-4 3.8-6.2-2.1-.8-4.1-1.7-6-2.8.5-.4 1-.7 1.5-1.1 11.5 5.3 24 5.3 35.4 0 .5.4 1 .7 1.5 1.1-1.9 1.1-3.9 2-6 2.8 1.1 2.2 2.4 4.3 3.8 6.2 5.7-1.7 11.5-4.3 17.5-8.7 1.7-17.6-2.9-32.7-12.3-47.8zM23.7 41.5c-3.4 0-6.2-3.1-6.2-6.9s2.7-6.9 6.2-6.9 6.3 3.1 6.2 6.9c0 3.8-2.7 6.9-6.2 6.9zm23.6 0c-3.4 0-6.2-3.1-6.2-6.9s2.7-6.9 6.2-6.9 6.3 3.1 6.2 6.9c0 3.8-2.7 6.9-6.2 6.9z" />
                             </svg>
-                            Añadir a Discord — Es gratis
+                            {t('hero.cta_discord')}
                         </button>
                     )}
                     <a href="#features" className="btn btn-secondary btn-lg">
-                        Ver funciones <ChevronRight size={18} />
+                        {t('hero.cta_features')} <ChevronRight size={18} />
                     </a>
                 </div>
 
                 <div className="hero__stats">
                     <div className="hero__stat">
                         <span className="hero__stat-num gradient-text">500+</span>
-                        <span className="hero__stat-label">Servidores</span>
+                        <span className="hero__stat-label">{t('hero.stats_servers')}</span>
                     </div>
                     <div className="hero__stat-divider" />
                     <div className="hero__stat">
                         <span className="hero__stat-num gradient-text">50k+</span>
-                        <span className="hero__stat-label">Usuarios</span>
+                        <span className="hero__stat-label">{t('hero.stats_users')}</span>
                     </div>
                     <div className="hero__stat-divider" />
                     <div className="hero__stat">
                         <span className="hero__stat-num gradient-text">99.9%</span>
-                        <span className="hero__stat-label">Uptime</span>
+                        <span className="hero__stat-label">{t('hero.stats_uptime')}</span>
                     </div>
                 </div>
             </div>
@@ -178,28 +177,39 @@ const features = [
 ]
 
 function Features() {
+    const { t } = useLanguage()
+
+    const featuresList = [
+        { icon: Ticket, color: '#5865F2', key: 'tickets' },
+        { icon: Users, color: '#57F287', key: 'autoroles' },
+        { icon: Bell, color: '#FEE75C', key: 'welcome' },
+        { icon: Mic2, color: '#EB459E', key: 'voice' },
+        { icon: MessageSquare, color: '#00d4ff', key: 'chat_admin' },
+        { icon: Shield, color: '#FF6B6B', key: 'mod' },
+    ]
+
     return (
         <section className="section features" id="features">
             <div className="container">
                 <div className="badge badge-blurple" style={{ margin: '0 auto 1rem', display: 'table' }}>
-                    <Zap size={12} /> Funcionalidades
+                    <Zap size={12} /> {t('features.badge')}
                 </div>
                 <h2 className="section-title">
-                    Todo lo que necesitas,<br />
-                    <span className="gradient-text">sin complicaciones</span>
+                    {t('features.title').split(',').slice(0, 1).join(',')},<br />
+                    <span className="gradient-text">{t('features.title').split(',').slice(1).join(',')}</span>
                 </h2>
                 <p className="section-subtitle">
-                    TBot viene con todas las herramientas para gestionar tu comunidad de Discord de forma profesional.
+                    {t('features.subtitle')}
                 </p>
 
                 <div className="features__grid">
-                    {features.map((f, i) => (
+                    {featuresList.map((f, i) => (
                         <div key={i} className="feature-card" style={{ '--accent': f.color }}>
                             <div className="feature-card__icon">
                                 <f.icon size={22} />
                             </div>
-                            <h3 className="feature-card__title">{f.title}</h3>
-                            <p className="feature-card__desc">{f.desc || f.description}</p>
+                            <h3 className="feature-card__title">{t(`features.items.${f.key}.title`)}</h3>
+                            <p className="feature-card__desc">{t(`features.items.${f.key}.desc`)}</p>
                             <div className="feature-card__glow" />
                         </div>
                     ))}
@@ -211,31 +221,30 @@ function Features() {
 
 /* ─── HOW IT WORKS ─── */
 function HowItWorks() {
-    const steps = [
-        { icon: Bot, title: 'Añade TBot', desc: 'Invita el bot a tu servidor de Discord con un solo click.' },
-        { icon: Globe, title: 'Abre el Dashboard', desc: 'Inicia sesión con tu cuenta de Discord y accede al panel.' },
-        { icon: Zap, title: 'Configura', desc: 'Personaliza cada módulo a tu gusto desde la interfaz.' },
-        { icon: TrendingUp, title: 'Disfruta', desc: 'Tu servidor funciona solo. Monitoriza las estadísticas.' },
-    ]
+    const { t } = useLanguage()
+    const icons = [Bot, Globe, Zap, TrendingUp]
 
     return (
         <section className="section how-it-works">
             <div className="container">
-                <h2 className="section-title">¿Cómo funciona?</h2>
-                <p className="section-subtitle">Configura TBot en minutos, sin necesidad de conocimientos técnicos.</p>
+                <h2 className="section-title">{t('how_it_works.title')}</h2>
+                <p className="section-subtitle">{t('how_it_works.subtitle')}</p>
 
                 <div className="hiw__steps">
-                    {steps.map((s, i) => (
-                        <div key={i} className="hiw__step">
-                            <div className="hiw__step-num">{i + 1}</div>
-                            <div className="hiw__step-icon">
-                                <s.icon size={24} />
+                    {[0, 1, 2, 3].map((i) => {
+                        const Icon = icons[i]
+                        return (
+                            <div key={i} className="hiw__step">
+                                <div className="hiw__step-num">{i + 1}</div>
+                                <div className="hiw__step-icon">
+                                    <Icon size={24} />
+                                </div>
+                                <h3 className="hiw__step-title">{t(`how_it_works.steps.${i}.title`)}</h3>
+                                <p className="hiw__step-desc">{t(`how_it_works.steps.${i}.desc`)}</p>
+                                {i < 3 && <div className="hiw__step-arrow" />}
                             </div>
-                            <h3 className="hiw__step-title">{s.title}</h3>
-                            <p className="hiw__step-desc">{s.desc}</p>
-                            {i < steps.length - 1 && <div className="hiw__step-arrow" />}
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             </div>
         </section>
@@ -314,6 +323,14 @@ const plans = [
 
 function Pricing() {
     const { user, login, createPaymentSession } = useAuth()
+    const { t } = useLanguage()
+
+    const pricingPlans = [
+        { key: 'free', price: '0€', period: '/mes', highlight: false, badge: null, ctaClass: 'btn-secondary' },
+        { key: 'pro', price: '3.99€', period: '/mes', highlight: true, badge: t('pricing.plans.pro.badge'), ctaClass: 'btn-primary' },
+        { key: 'pro_annual', price: '2.99€', period: '/mes', highlight: true, badge: t('pricing.plans.pro_annual.badge'), ctaClass: 'btn-primary' },
+        { key: 'enterprise', price: '14.99€', period: '/mes', highlight: false, badge: null, ctaClass: 'btn-secondary' },
+    ]
 
     const handleUpgradeClick = async (planName) => {
         if (planName === 'Pro') {
@@ -338,28 +355,28 @@ function Pricing() {
         <section className="section pricing" id="pricing">
             <div className="container">
                 <div className="badge badge-green" style={{ margin: '0 auto 1rem', display: 'table' }}>
-                    <Star size={12} /> Planes
+                    <Star size={12} /> {t('pricing.badge')}
                 </div>
                 <h2 className="section-title">
-                    Simple y <span className="gradient-text-green">transparente</span>
+                    {t('pricing.title').split(' ')[0]} <span className="gradient-text-green">{t('pricing.title').split(' ').slice(1).join(' ')}</span>
                 </h2>
                 <p className="section-subtitle">
-                    Sin sorpresas ni costes ocultos. Elige el plan que mejor se adapte a tu comunidad.
+                    {t('pricing.subtitle')}
                 </p>
 
                 <div className="pricing__grid">
-                    {plans.map((plan, i) => (
+                    {pricingPlans.map((plan, i) => (
                         <div key={i} className={`pricing-card ${plan.highlight ? 'pricing-card--highlight' : ''}`}>
                             {plan.badge && <div className="pricing-card__badge">{plan.badge}</div>}
                             <div className="pricing-card__header">
-                                <h3 className="pricing-card__name">{plan.name}</h3>
+                                <h3 className="pricing-card__name">{t(`pricing.plans.${plan.key}.name`)}</h3>
                                 <div className="pricing-card__price">
                                     <span className="pricing-card__amount">{plan.price}</span>
                                     <span className="pricing-card__period">{plan.period}</span>
                                 </div>
                             </div>
                             <ul className="pricing-card__features">
-                                {plan.features.map((f, j) => (
+                                {t(`pricing.plans.${plan.key}.features`).map((f, j) => (
                                     <li key={j} className="pricing-card__feature">
                                         <CheckCircle2 size={16} className="pricing-card__check" />
                                         {f}
@@ -367,23 +384,23 @@ function Pricing() {
                                 ))}
                             </ul>
                             {user ? (
-                                (plan.name === 'Pro' || plan.name === 'Pro Anual') ? (
+                                (plan.key === 'pro' || plan.key === 'pro_annual') ? (
                                     <button 
-                                        onClick={() => handleUpgradeClick(plan.name)}
+                                        onClick={() => handleUpgradeClick(plan.key === 'pro' ? 'Pro' : 'Pro Anual')}
                                         className={`btn ${plan.ctaClass} pricing-card__cta`}
                                     >
-                                        {plan.name === 'Pro' ? 'Mejorar ahora' : 'Ahorra más'}
+                                        {t(`pricing.plans.${plan.key}.cta`)}
                                     </button>
-                                ) : plan.name === 'Enterprise' ? (
+                                ) : plan.key === 'enterprise' ? (
                                     <button 
-                                        onClick={() => handleUpgradeClick(plan.name)}
+                                        onClick={() => handleUpgradeClick('Enterprise')}
                                         className={`btn ${plan.ctaClass} pricing-card__cta`}
                                     >
-                                        {plan.cta}
+                                        {t(`pricing.plans.${plan.key}.cta`)}
                                     </button>
                                 ) : (
                                     <Link to="/dashboard" className={`btn ${plan.ctaClass} pricing-card__cta`}>
-                                        {plan.cta}
+                                        {t(`pricing.plans.${plan.key}.cta`)}
                                     </Link>
                                 )
                             ) : (
@@ -391,7 +408,7 @@ function Pricing() {
                                     onClick={login} 
                                     className={`btn ${plan.ctaClass} pricing-card__cta`}
                                 >
-                                    {plan.cta}
+                                    {t(`pricing.plans.${plan.key}.cta`)}
                                 </button>
                             )}
                         </div>
@@ -405,6 +422,7 @@ function Pricing() {
 /* ─── CTA FINAL ─── */
 function CTASection() {
     const { user, login } = useAuth()
+    const { t } = useLanguage()
 
     return (
         <section className="cta-section">
@@ -414,11 +432,11 @@ function CTASection() {
                     <img src={logoImg} alt="Logo" />
                 </div>
                 <h2 className="section-title">
-                    ¿Listo para llevar tu servidor<br />
-                    al <span className="gradient-text">siguiente nivel</span>?
+                    {t('cta_final.title').split(' ').slice(0, 6).join(' ')}<br />
+                    {t('cta_final.title').split(' ').slice(6, 7).join(' ')} <span className="gradient-text">{t('cta_final.title').split(' ').slice(7).join(' ')}</span>?
                 </h2>
                 <p className="section-subtitle">
-                    Únete a más de 500 servidores que ya confían en TBot para gestionar su comunidad.
+                    {t('cta_final.subtitle')}
                 </p>
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                     {!user && (
@@ -426,11 +444,11 @@ function CTASection() {
                             <svg width="20" height="20" viewBox="0 0 71 55" fill="white">
                                 <path d="M60.1 4.9C55.6 2.8 50.8 1.2 45.8.4c-.6 1-1.2 2.4-1.7 3.5-5.3-.8-10.6-.8-15.8 0-.5-1.1-1.2-2.5-1.8-3.5C21.5 1.2 16.7 2.8 12.2 4.9 1.8 20.5-1.1 35.7.4 50.7c6 4.4 11.8 7 17.5 8.7 1.4-1.9 2.7-4 3.8-6.2-2.1-.8-4.1-1.7-6-2.8.5-.4 1-.7 1.5-1.1 11.5 5.3 24 5.3 35.4 0 .5.4 1 .7 1.5 1.1-1.9 1.1-3.9 2-6 2.8 1.1 2.2 2.4 4.3 3.8 6.2 5.7-1.7 11.5-4.3 17.5-8.7 1.7-17.6-2.9-32.7-12.3-47.8zM23.7 41.5c-3.4 0-6.2-3.1-6.2-6.9s2.7-6.9 6.2-6.9 6.3 3.1 6.2 6.9c0 3.8-2.7 6.9-6.2 6.9zm23.6 0c-3.4 0-6.2-3.1-6.2-6.9s2.7-6.9 6.2-6.9 6.3 3.1 6.2 6.9c0 3.8-2.7 6.9-6.2 6.9z" />
                             </svg>
-                            Añadir TBot gratis
+                            {t('cta_final.btn_add')}
                         </button>
                     )}
                     <a href="#features" className="btn btn-secondary btn-lg">
-                        Ver más funciones <ArrowRight size={18} />
+                        {t('cta_final.btn_features')} <ArrowRight size={18} />
                     </a>
                 </div>
             </div>
@@ -440,6 +458,8 @@ function CTASection() {
 
 /* ─── FOOTER ─── */
 function Footer() {
+    const { t } = useLanguage()
+
     return (
         <footer className="footer">
             <div className="container footer__content">
@@ -450,31 +470,31 @@ function Footer() {
                         </div>
                         <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '1.1rem' }}>TBot</span>
                     </div>
-                    <p className="footer__desc">El bot de Discord definitivo para gestionar tu servidor.</p>
+                    <p className="footer__desc">{t('footer.desc')}</p>
                 </div>
 
                 <div className="footer__links">
                     <div className="footer__col">
-                        <h4>Producto</h4>
-                        <a href="#features">Funciones</a>
-                        <a href="#pricing">Planes</a>
+                        <h4>{t('footer.col_product')}</h4>
+                        <a href="#features">{t('navbar.features')}</a>
+                        <a href="#pricing">{t('navbar.pricing')}</a>
                     </div>
                     <div className="footer__col">
-                        <h4>Soporte</h4>
-                        <a href="#">Documentación</a>
+                        <h4>{t('footer.col_support')}</h4>
+                        <a href="#">{t('navbar.docs')}</a>
                         <a href="#">Discord</a>
                     </div>
                     <div className="footer__col">
-                        <h4>Legal</h4>
-                        <a href="#">Privacidad</a>
-                        <a href="#">Términos</a>
+                        <h4>{t('footer.col_legal')}</h4>
+                        <a href="#">{t('footer.col_legal').toLowerCase() === 'legal' ? 'Privacy' : 'Privacidad'}</a>
+                        <a href="#">{t('footer.col_legal').toLowerCase() === 'legal' ? 'Terms' : 'Términos'}</a>
                     </div>
                 </div>
             </div>
             <div className="footer__bottom container">
-                <span>© 2026 TBot. Todos los derechos reservados.</span>
+                <span>{t('footer.rights')}</span>
                 <div className="footer__bottom-links">
-                    <Lock size={12} /> Conexión segura
+                    <Lock size={12} /> {t('footer.secure')}
                 </div>
             </div>
         </footer>

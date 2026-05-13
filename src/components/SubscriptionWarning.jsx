@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import { AlertTriangle, Clock, Crown, X } from 'lucide-react'
 import api from '../utils/api'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import './SubscriptionWarning.css'
 
 export default function SubscriptionWarning() {
+    const { t } = useLanguage()
     const [subscriptionStatus, setSubscriptionStatus] = useState(null)
     const [loading, setLoading] = useState(true)
     const [dismissed, setDismissed] = useState(false)
@@ -67,14 +69,18 @@ export default function SubscriptionWarning() {
                 </div>
                 <div className="subscription-warning__text">
                     <h4>
-                        {isUrgent ? '¡Tu suscripción está por expirar!' : 'Tu suscripción está por expirar'}
+                        {isUrgent ? t('subscription.urgent_title') : t('subscription.warning_title')}
                     </h4>
+                    <p dangerouslySetInnerHTML={{ 
+                        __html: t('subscription.expires_in')
+                            .replace('{days}', daysLeft)
+                            .replace('{s}', daysLeft !== 1 ? 's' : '') 
+                    }} />
                     <p>
-                        Tu plan Pro expirará en <strong>{daysLeft} día{daysLeft !== 1 ? 's' : ''}</strong>. 
-                        La renovación automática está desactivada.
+                        {t('subscription.auto_renew_off')}
                     </p>
                     <p className="subscription-warning__subtext">
-                        Activa la renovación automática o renueva manualmente para no perder el acceso a las funciones Pro.
+                        {t('subscription.action_desc')}
                     </p>
                 </div>
                 <div className="subscription-warning__actions">
@@ -82,13 +88,13 @@ export default function SubscriptionWarning() {
                         className="btn btn-primary subscription-warning__btn"
                         onClick={() => window.open('https://dashboard.stripe.com/subscriptions', '_blank')}
                     >
-                        <Clock size={16} /> Gestionar Suscripción
+                        <Clock size={16} /> {t('subscription.manage')}
                     </button>
                     <button 
                         className="btn btn-secondary subscription-warning__btn"
                         onClick={() => createPaymentSession('annual')}
                     >
-                        <Crown size={16} /> Renovar Ahora
+                        <Crown size={16} /> {t('subscription.renew')}
                     </button>
                 </div>
                 <button 

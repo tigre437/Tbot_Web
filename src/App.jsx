@@ -59,12 +59,16 @@ function AppRoutes() {
   )
 }
 
+import { LanguageProvider } from './context/LanguageContext'
+
 function App() {
   return (
-    <AuthProvider>
-      <AppRoutes />
-      <PaymentRedirectModalWrapper />
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <AppRoutes />
+        <PaymentRedirectModalWrapper />
+      </AuthProvider>
+    </LanguageProvider>
   )
 }
 

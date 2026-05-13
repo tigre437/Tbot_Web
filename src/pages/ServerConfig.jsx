@@ -9,16 +9,17 @@ import api from '../utils/api'
 import logoImg from '../assets/logo256.png'
 import ArrivalStudio from '../components/ArrivalStudio'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import './ServerConfig.css'
 
 const MODULES = [
-    { id: 'tickets', icon: Ticket, label: 'Tickets', color: '#5865F2', desc: 'Paneles de soporte' },
-    { id: 'autoroles', icon: Users, label: 'Autoroles', color: '#57F287', desc: 'Paneles de rol y entrada' },
-    { id: 'welcome', icon: Bell, label: 'Bienvenida', color: '#FEE75C', desc: 'Mensajes de bienvenida' },
-    { id: 'voice', icon: Mic2, label: 'Canales de Voz', color: '#EB459E', desc: 'Canales dinámicos' },
-    { id: 'admin_chat', icon: MessageSquare, label: 'Admin Chat', color: '#00d4ff', desc: 'Chat privado admins' },
-    { id: 'moderation', icon: Shield, label: 'Moderación', color: '#FF6B6B', desc: 'Herramientas mod' },
-    { id: 'levels', icon: Star, label: 'Niveles & XP', color: '#f5c518', desc: 'Roles por tiempo' },
+    { id: 'tickets', icon: Ticket, color: '#5865F2', key: 'tickets' },
+    { id: 'autoroles', icon: Users, color: '#57F287', key: 'autoroles' },
+    { id: 'welcome', icon: Bell, color: '#FEE75C', key: 'welcome' },
+    { id: 'voice', icon: Mic2, color: '#EB459E', key: 'voice' },
+    { id: 'admin_chat', icon: MessageSquare, color: '#00d4ff', key: 'admin_chat' },
+    { id: 'moderation', icon: Shield, color: '#FF6B6B', key: 'moderation' },
+    { id: 'levels', icon: Star, color: '#f5c518', key: 'levels' },
 ]
 
 const MAX_FREE_LIMITS = {
@@ -36,7 +37,8 @@ function ProBadge({ size = 10 }) {
     )
 }
 
-function ProGuard({ isPro, children, fallback = null, featureName = "esta función" }) {
+function ProGuard({ isPro, children, fallback = null, featureName = "this feature" }) {
+    const { t } = useLanguage()
     const { serverId } = useParams()
     const [loading, setLoading] = useState(null) // 'monthly' | 'annual' | null
     const [selectedPlan, setSelectedPlan] = useState('annual')
@@ -49,7 +51,7 @@ function ProGuard({ isPro, children, fallback = null, featureName = "esta funci�
             })
             window.location.href = res.data.url
         } catch (e) {
-            alert('Error al iniciar el pago: ' + (e.response?.data?.detail || e.message))
+            alert(t('common.error') + ': ' + (e.response?.data?.detail || e.message))
         } finally {
             setLoading(null)
         }
@@ -63,23 +65,23 @@ function ProGuard({ isPro, children, fallback = null, featureName = "esta funci�
         <div className="pro-lock">
             <div className="pro-lock__content">
                 <Sparkles size={24} style={{ color: 'var(--yellow)' }} />
-                <h3>Función Premium</h3>
-                <p>Mejora a <strong>TBot Pro</strong> para desbloquear {featureName} y llevar tu servidor al siguiente nivel.</p>
+                <h3>{t('server_config.pro_guard.title')}</h3>
+                <p>{t('server_config.pro_guard.desc').replace('{feature}', `<strong>${featureName}</strong>`)}</p>
                 
                 <div className="plan-selector">
                     <button 
                         className={`plan-option ${selectedPlan === 'monthly' ? 'plan-option--active' : ''}`}
                         onClick={() => setSelectedPlan('monthly')}
                     >
-                        <span className="plan-option__name">Mensual</span>
+                        <span className="plan-option__name">{t('server_config.pro_guard.monthly')}</span>
                         <span className="plan-option__price">4.99€<small>/mes</small></span>
                     </button>
                     <button 
                         className={`plan-option ${selectedPlan === 'annual' ? 'plan-option--active' : ''}`}
                         onClick={() => setSelectedPlan('annual')}
                     >
-                        <div className="plan-option__badge">¡Ahorra 20%!</div>
-                        <span className="plan-option__name">Anual</span>
+                        <div className="plan-option__badge">{t('server_config.pro_guard.save')}</div>
+                        <span className="plan-option__name">{t('server_config.pro_guard.annual')}</span>
                         <span className="plan-option__price">47.90€<small>/año</small></span>
                     </button>
                 </div>
@@ -90,7 +92,7 @@ function ProGuard({ isPro, children, fallback = null, featureName = "esta funci�
                     disabled={!!loading}
                     style={{ width: '100%', maxWidth: '300px', marginTop: '0.5rem' }}
                 >
-                    {loading ? <><Loader2 size={14} className="spin" /> Redirigiendo...</> : `Suscribirse ${selectedPlan === 'monthly' ? 'Mensual' : 'Anual'}`}
+                    {loading ? <><Loader2 size={14} className="spin" /> {t('server_config.pro_guard.redirecting')}</> : `${t('server_config.pro_guard.subscribe')} ${selectedPlan === 'monthly' ? t('server_config.pro_guard.monthly') : t('server_config.pro_guard.annual')}`}
                 </button>
             </div>
         </div>
@@ -296,6 +298,7 @@ function useToast() {
 
 // ─── TRANSCRIPTS LIST ──────────────────────────────────────────────────────────
 function TranscriptsList({ guildId, panels = [] }) {
+    const { t } = useLanguage()
     const [transcripts, setTranscripts] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
@@ -328,20 +331,7 @@ function TranscriptsList({ guildId, panels = [] }) {
         window.open(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/transcripts/${id}`, '_blank')
     }
 
-    const filtered = transcripts.filter(t => {
-        const ticketName = String(t.ticket_name || 'Ticket')
-        const authorId = String(t.author_id || '')
-        const closedByName = String(t.closed_by_name || '')
-        
-        const matchesSearch = ticketName.toLowerCase().includes(search.toLowerCase()) || 
-                              authorId.includes(search) ||
-                              closedByName.toLowerCase().includes(search.toLowerCase())
-        
-        const matchesPanel = !filterPanel || String(t.panel_id || '') === String(filterPanel)
-        return matchesSearch && matchesPanel
-    })
-
-    if (loading) return <div className="mod-loading"><Loader2 size={20} className="spin" /> Cargando transcripciones...</div>
+    if (loading) return <div className="mod-loading"><Loader2 size={20} className="spin" /> {t('server_config.tickets.transcripts.loading')}</div>
 
     return (
         <>
@@ -351,7 +341,7 @@ function TranscriptsList({ guildId, panels = [] }) {
                     <input 
                         type="text" 
                         className="config-input" 
-                        placeholder="Buscar por ticket, ID usuario o moderador..." 
+                        placeholder={t('server_config.tickets.transcripts.search_placeholder')} 
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                     />
@@ -361,7 +351,7 @@ function TranscriptsList({ guildId, panels = [] }) {
                     value={filterPanel} 
                     onChange={e => setFilterPanel(e.target.value)}
                 >
-                    <option value="">Todos los paneles</option>
+                    <option value="">{t('server_config.tickets.transcripts.all_panels')}</option>
                     {panels.map(p => (
                         <option key={p.id_panel} value={p.id_panel}>{p.ticket_title}</option>
                     ))}
@@ -372,23 +362,16 @@ function TranscriptsList({ guildId, panels = [] }) {
             {error === 'pro_required' && (
                 <div className="mod-empty" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
                     <Crown size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
-                    <h3 style={{ color: 'var(--yellow)', marginBottom: '0.5rem' }}>Función Exclusiva Pro</h3>
+                    <h3 style={{ color: 'var(--yellow)', marginBottom: '0.5rem' }}>{t('server_config.tickets.transcripts.pro_required_title')}</h3>
                     <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-                        Las transcripciones son una función exclusiva del plan Pro.<br/>
-                        Mejora tu plan para acceder a todas las transcripciones de tus tickets.
+                        {t('server_config.tickets.transcripts.pro_required_desc')}
                     </p>
                     <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                         <button 
                             className="btn btn-primary"
                             onClick={() => createPaymentSession('monthly')}
                         >
-                            <Crown size={16} /> Mejorar a Pro
-                        </button>
-                        <button 
-                            className="btn btn-secondary"
-                            onClick={() => createPaymentSession('annual')}
-                        >
-                            <Crown size={16} /> Ahorrar más (Anual)
+                            <Crown size={16} /> {t('pricing.plans.pro.cta')}
                         </button>
                     </div>
                 </div>
@@ -397,7 +380,7 @@ function TranscriptsList({ guildId, panels = [] }) {
             {error === 'general' && (
                 <div className="mod-empty">
                     <AlertCircle size={32} style={{ opacity: 0.3 }} />
-                    <p>Error al cargar las transcripciones. Por favor, inténtalo de nuevo más tarde.</p>
+                    <p>{t('server_config.tickets.transcripts.error_loading')}</p>
                 </div>
             )}
 
@@ -405,7 +388,7 @@ function TranscriptsList({ guildId, panels = [] }) {
             {!error && filtered.length === 0 ? (
                 <div className="mod-empty">
                     <Bot size={32} style={{ opacity: 0.3 }} />
-                    <p>{transcripts.length === 0 ? 'No hay transcripciones guardadas aún.' : 'No se encontraron resultados para tu búsqueda.'}</p>
+                    <p>{transcripts.length === 0 ? t('server_config.tickets.transcripts.empty') : t('server_config.tickets.transcripts.no_results')}</p>
                 </div>
             ) : !error && (
                 <div className="panel-list">
@@ -413,15 +396,15 @@ function TranscriptsList({ guildId, panels = [] }) {
                         <div key={t.id} className="panel-item">
                             <div className="panel-item__icon" style={{ background: 'rgba(235, 69, 158, 0.12)', color: '#EB459E' }}><BookOpen size={18} /></div>
                             <div className="panel-item__info">
-                                <span className="panel-item__title">Ticket: {t.ticket_name}</span>
+                                <span className="panel-item__title">{t('server_config.tickets.transcripts.ticket')}: {t.ticket_name}</span>
                                 <span className="panel-item__meta">
                                     <span className="badge badge-blurple" style={{ fontSize: '0.65rem' }}>👤 {t.author_id}</span>
-                                    {t.closed_by_name && <span className="panel-item__ch">Cerrado por: {t.closed_by_name}</span>}
+                                    {t.closed_by_name && <span className="panel-item__ch">{t('server_config.tickets.transcripts.closed_by')}: {t.closed_by_name}</span>}
                                     <span className="panel-item__counter">📅 {new Date(t.created_at).toLocaleDateString()}</span>
                                 </span>
                             </div>
                             <button className="btn btn-secondary btn-sm" onClick={() => viewTranscript(t.id)}>
-                                <Bot size={14} /> Ver chat
+                                <Bot size={14} /> {t('server_config.tickets.transcripts.view_chat')}
                             </button>
                         </div>
                     ))}
@@ -433,6 +416,7 @@ function TranscriptsList({ guildId, panels = [] }) {
 
 // ─── TICKETS MODULE ───────────────────────────────────────────────────────────
 function TicketsConfig({ guildId, channels, roles, plan }) {
+    const { t } = useLanguage()
     const isPro = plan === 'pro' || plan === 'enterprise'
     const [tab, setTab] = useState('panels')
     const [panels, setPanels] = useState([])
@@ -584,17 +568,17 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
             <Toast toast={toast} />
 
             <div className="mod-tabs">
-                <button className={`mod-tab ${tab === 'panels' ? 'mod-tab--active' : ''}`} onClick={() => setTab('panels')}>Paneles</button>
-                <button className={`mod-tab ${tab === 'transcripts' ? 'mod-tab--active' : ''}`} onClick={() => setTab('transcripts')}>Transcripciones</button>
-                <button className={`mod-tab ${tab === 'schedule' ? 'mod-tab--active' : ''}`} onClick={() => setTab('schedule')}>Horarios</button>
-                <button className={`mod-tab ${tab === 'close-request' ? 'mod-tab--active' : ''}`} onClick={() => setTab('close-request')}>Cierre Auto</button>
+                <button className={`mod-tab ${tab === 'panels' ? 'mod-tab--active' : ''}`} onClick={() => setTab('panels')}>{t('server_config.tickets.tabs.panels')}</button>
+                <button className={`mod-tab ${tab === 'transcripts' ? 'mod-tab--active' : ''}`} onClick={() => setTab('transcripts')}>{t('server_config.tickets.tabs.transcripts')}</button>
+                <button className={`mod-tab ${tab === 'schedule' ? 'mod-tab--active' : ''}`} onClick={() => setTab('schedule')}>{t('server_config.tickets.tabs.schedule')}</button>
+                <button className={`mod-tab ${tab === 'close-request' ? 'mod-tab--active' : ''}`} onClick={() => setTab('close-request')}>{t('server_config.tickets.tabs.close_auto')}</button>
             </div>
 
             {tab === 'panels' ? (
                 <>
                     <div className="mod-block">
                         <div className="mod-block__header">
-                            <h4>Paneles configurados</h4>
+                            <h4>{t('server_config.tickets.panels.title')}</h4>
                             <button 
                                 className="btn btn-primary btn-sm" 
                                 onClick={() => {
@@ -605,11 +589,11 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                     setShowForm(s => !s)
                                 }}
                             >
-                                {showForm ? <><X size={14} /> Cancelar</> : <><Plus size={14} /> Nuevo panel</>}
+                                {showForm ? <><X size={14} /> {t('common.cancel')}</> : <><Plus size={14} /> {t('server_config.tickets.panels.new_panel')}</>}
                             </button>
                         </div>
-                        {loading ? <div className="mod-loading"><Loader2 size={20} className="spin" /> Cargando paneles...</div>
-                            : panels.length === 0 ? <div className="mod-empty"><Ticket size={32} style={{ opacity: 0.3 }} /><p>No hay paneles configurados aún.</p></div>
+                        {loading ? <div className="mod-loading"><Loader2 size={20} className="spin" /> {t('server_config.tickets.panels.loading')}</div>
+                            : panels.length === 0 ? <div className="mod-empty"><Ticket size={32} style={{ opacity: 0.3 }} /><p>{t('server_config.tickets.panels.empty')}</p></div>
                                 : <div className="panel-list">
                                     {panels.map(p => (
                                         <div key={p.id_panel}>
@@ -618,10 +602,10 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                                 <div className="panel-item__info">
                                                     <span className="panel-item__title">{p.ticket_title}</span>
                                                     <span className="panel-item__meta">
-                                                        <span className={`badge ${p.type === 'dropdown' ? 'badge-blurple' : 'badge-green'}`} style={{ fontSize: '0.65rem' }}>{p.type === 'dropdown' ? 'Desplegable' : 'Botón'}</span>
+                                                        <span className={`badge ${p.type === 'dropdown' ? 'badge-blurple' : 'badge-green'}`} style={{ fontSize: '0.65rem' }}>{p.type === 'dropdown' ? t('server_config.tickets.panels.dropdown') : t('server_config.tickets.panels.button')}</span>
                                                         {p.channel_name && <span className="panel-item__ch"><Hash size={11} />{p.channel_name}</span>}
-                                                        <span className="panel-item__counter">🎫 {p.ticket_counter} tickets</span>
-                                                        {p.options?.length > 0 && <span className="panel-item__opts">{p.options.length} opciones</span>}
+                                                        <span className="panel-item__counter">🎫 {p.ticket_counter} {t('server_config.tickets.panels.tickets_count')}</span>
+                                                        {p.options?.length > 0 && <span className="panel-item__opts">{p.options.length} {t('server_config.tickets.panels.options_count')}</span>}
                                                     </span>
                                                 </div>
                                                 <button
@@ -654,13 +638,13 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                             {/* ── EMBED EDITOR ── */}
                                             {editEmbedPanel === p.id_panel && (
                                                 <div className="embed-editor">
-                                                    <p className="embed-editor__hint">Este embed se envía <strong>dentro del canal del ticket</strong> al abrirlo.</p>
+                                                    <p className="embed-editor__hint">{t('server_config.tickets.embed.hint')}</p>
                                                     <div className="embed-editor__body">
                                                         <div className="embed-editor__fields">
                                                             <div className="form-grid">
                                                                 <div className="form-field">
                                                                     <div className="form-field__label-row">
-                                                                        <label>Título</label>
+                                                                        <label>{t('server_config.tickets.form.title')}</label>
                                                                         <CharCounter current={embedForm.message_title.length} max={EMBED_LIMITS.title} />
                                                                     </div>
                                                                     <input className="config-input" value={embedForm.message_title} maxLength={EMBED_LIMITS.title}
@@ -668,7 +652,7 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                                                         placeholder="Ej: Tu ticket ha sido creado" />
                                                                 </div>
                                                                 <div className="form-field">
-                                                                    <label>Color del embed</label>
+                                                                    <label>{t('server_config.tickets.form.color')}</label>
                                                                     <div className="color-picker-wrap">
                                                                         <input type="color" className="color-picker" value={embedForm.message_color}
                                                                             onChange={e => setEmbedForm(f => ({ ...f, message_color: e.target.value }))} />
@@ -677,7 +661,7 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                                                 </div>
                                                                 <div className="form-field form-field--full">
                                                                     <div className="form-field__label-row">
-                                                                        <label>Descripción</label>
+                                                                        <label>{t('server_config.tickets.form.desc')}</label>
                                                                         <CharCounter current={embedForm.message_description.length} max={EMBED_LIMITS.description} />
                                                                     </div>
                                                                     <textarea className="config-textarea" rows={3} value={embedForm.message_description} maxLength={EMBED_LIMITS.description}
@@ -734,16 +718,16 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                                                 </div>
                                                             </div>
                                                             <div className="form-actions" style={{ marginTop: '0.75rem' }}>
-                                                                <button className="btn btn-secondary btn-sm" onClick={() => setEditEmbedPanel(null)}>Cancelar</button>
+                                                                <button className="btn btn-secondary btn-sm" onClick={() => setEditEmbedPanel(null)}>{t('common.cancel')}</button>
                                                                 <button className="btn btn-primary btn-sm" onClick={() => handleSaveEmbed(p.id_panel)} disabled={embedSaving}>
-                                                                    {embedSaving ? <><Loader2 size={14} className="spin" /> Guardando...</> : <><Save size={14} /> Guardar embed</>}
+                                                                    {embedSaving ? <><Loader2 size={14} className="spin" /> {t('server_config.tickets.embed.saving')}</> : <><Save size={14} /> {t('server_config.tickets.embed.save')}</>}
                                                                 </button>
                                                             </div>
                                                         </div>
 
                                                         {/* ── Discord embed preview ── */}
                                                         <div className="embed-preview">
-                                                            <p className="embed-preview__label">Vista previa</p>
+                                                            <p className="embed-preview__label">{t('server_config.tickets.embed.preview')}</p>
                                                             <div className="embed-preview__card" style={{ '--embed-color': embedForm.message_color }}>
                                                                 {embedForm.message_thumbnail_url && (
                                                                     <img className="embed-preview__thumb" src={embedForm.message_thumbnail_url}
@@ -773,7 +757,7 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                                                     </div>
                                                                 )}
                                                                 {!embedForm.message_title && !embedForm.message_description && !embedForm.message_footer_text && (
-                                                                    <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>El embed aparecerá aquí...</span>
+                                                                    <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{t('server_config.tickets.embed.placeholder')}</span>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -1974,6 +1958,7 @@ function ConfigRenderer({ moduleId, guildId, channels, roles, plan }) {
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 export default function ServerConfig() {
+    const { t } = useLanguage()
     const { serverId } = useParams()
     const [server, setServer] = useState(null)
     const [activeModule, setActiveModule] = useState('tickets')

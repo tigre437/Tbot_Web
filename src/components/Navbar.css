@@ -85,6 +85,31 @@
     flex-shrink: 0;
 }
 
+.navbar__lang-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.8rem;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.navbar__lang-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--border-glow);
+    color: var(--text-primary);
+}
+
+.navbar__lang-toggle svg {
+    color: var(--blurple);
+}
+
 .navbar__login-btn {
     display: flex;
     align-items: center;

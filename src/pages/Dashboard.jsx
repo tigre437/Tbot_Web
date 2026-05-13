@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { Search, Crown, Shield, RefreshCw, Plus, Bot, Settings, Wifi, WifiOff } from 'lucide-react'
 import api from '../utils/api'
 import logoImg from '../assets/logo256.png'
@@ -43,6 +44,7 @@ const MOCK_SERVERS = [
 
 function ServerCard({ server }) {
     const navigate = useNavigate()
+    const { t, language } = useLanguage()
     const initial = server.name.charAt(0).toUpperCase()
     const iconUrl = server.icon
         ? `https://cdn.discordapp.com/icons/${server.id}/${server.icon}.png?size=128`
@@ -69,23 +71,23 @@ function ServerCard({ server }) {
                     <h3 className="server-card__name">{server.name}</h3>
                     <div className="server-card__badges">
                         {server.isOwner && (
-                            <span className="badge badge-yellow" title="Eres el dueño">
-                                <Crown size={11} /> Dueño
+                            <span className="badge badge-yellow" title={t('dashboard.server_card.owner')}>
+                                <Crown size={11} /> {t('dashboard.server_card.owner')}
                             </span>
                         )}
                         {!server.isOwner && (
-                            <span className="badge badge-blurple" title="Administrador">
-                                <Shield size={11} /> Admin
+                            <span className="badge badge-blurple" title={t('dashboard.server_card.admin')}>
+                                <Shield size={11} /> {t('dashboard.server_card.admin')}
                             </span>
                         )}
                     </div>
                 </div>
                 <div className="server-card__meta">
                     <span className="server-card__members">
-                        {server.memberCount?.toLocaleString('es-ES')} miembros
+                        {server.memberCount?.toLocaleString(language === 'es' ? 'es-ES' : 'en-US')} {t('dashboard.server_card.members')}
                     </span>
                     <span className={`server-card__bot-status ${server.botOnline ? 'server-card__bot-status--online' : ''}`}>
-                        {server.botOnline ? <><Wifi size={12} /> Bot activo</> : <><WifiOff size={12} /> Sin TBot</>}
+                        {server.botOnline ? <><Wifi size={12} /> {t('dashboard.server_card.active')}</> : <><WifiOff size={12} /> {t('dashboard.server_card.inactive')}</>}
                     </span>
                 </div>
             </div>
@@ -97,7 +99,7 @@ function ServerCard({ server }) {
                     onClick={() => navigate(`/dashboard/${server.id}`)}
                 >
                     <Settings size={15} />
-                    Configurar
+                    {t('dashboard.server_card.configure')}
                 </button>
             ) : (
                 <a
@@ -108,7 +110,7 @@ function ServerCard({ server }) {
                     onClick={e => e.stopPropagation()}
                 >
                     <Plus size={15} />
-                    Añadir bot
+                    {t('dashboard.server_card.add_bot')}
                 </a>
             )}
         </div>
@@ -117,6 +119,7 @@ function ServerCard({ server }) {
 
 export default function Dashboard() {
     const { user, createPaymentSession } = useAuth()
+    const { t } = useLanguage()
     const [servers, setServers] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
@@ -127,7 +130,7 @@ export default function Dashboard() {
         try {
             createPaymentSession(planType)
         } catch (error) {
-            alert('Error al iniciar el proceso de pago. Por favor, inténtalo de nuevo.')
+            alert(t('common.error'))
         }
     }
 
@@ -177,15 +180,15 @@ export default function Dashboard() {
                                 className="dashboard__avatar"
                             />
                             {user?.plan === 'pro' && (
-                                <div className="dashboard__pro-badge" title="Usuario Pro">
+                                <div className="dashboard__pro-badge" title={t('dashboard.pro_user')}>
                                     <Crown size={16} />
                                 </div>
                             )}
                         </div>
                         <div>
-                            <p className="dashboard__greeting">Bienvenido de vuelta,</p>
+                            <p className="dashboard__greeting">{t('dashboard.welcome')}</p>
                             <h1 className="dashboard__username">
-                                {user?.username || 'Usuario'} 👋
+                                {user?.username || 'User'} 👋
                                 {user?.plan === 'pro' && (
                                     <span className="dashboard__pro-text">PRO</span>
                                 )}
@@ -196,17 +199,17 @@ export default function Dashboard() {
                     <div className="dashboard__quick-stats">
                         <div className="dashboard__qs-card">
                             <span className="dashboard__qs-num gradient-text">{servers.length}</span>
-                            <span className="dashboard__qs-label">Servidores</span>
+                            <span className="dashboard__qs-label">{t('dashboard.servers')}</span>
                         </div>
                         <div className="dashboard__qs-card">
                             <span className="dashboard__qs-num gradient-text-green">{online}</span>
-                            <span className="dashboard__qs-label">Bot activo</span>
+                            <span className="dashboard__qs-label">{t('dashboard.bot_online')}</span>
                         </div>
                         <div className="dashboard__qs-card">
                             <span className="dashboard__qs-num" style={{ color: 'var(--yellow)' }}>
                                 {servers.filter(s => s.isOwner).length}
                             </span>
-                            <span className="dashboard__qs-label">Como dueño</span>
+                            <span className="dashboard__qs-label">{t('dashboard.as_owner')}</span>
                         </div>
                         {user?.plan === 'free' && (
                             <div className="dashboard__qs-card dashboard__qs-card--upgrade">
@@ -217,7 +220,7 @@ export default function Dashboard() {
                                     onClick={() => setShowUpgradeModal(true)}
                                     className="dashboard__upgrade-btn"
                                 >
-                                    Mejorar ahora
+                                    {t('dashboard.upgrade_now')}
                                 </button>
                             </div>
                         )}
@@ -232,7 +235,7 @@ export default function Dashboard() {
                         <Search size={16} />
                         <input
                             type="text"
-                            placeholder="Buscar servidor..."
+                            placeholder={t('dashboard.search_placeholder')}
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             className="dashboard__search-input"
@@ -244,7 +247,7 @@ export default function Dashboard() {
                         disabled={refreshing}
                     >
                         <RefreshCw size={15} className={refreshing ? 'spin' : ''} />
-                        Actualizar
+                        {t('dashboard.refresh')}
                     </button>
                 </div>
 
@@ -264,11 +267,11 @@ export default function Dashboard() {
                 ) : (
                     <div className="dashboard__empty">
                         <img src={logoImg} alt="Logo" />
-                        <h3>No se encontraron servidores</h3>
+                        <h3>{t('dashboard.no_servers_found')}</h3>
                         <p>
                             {search
-                                ? 'Ningún servidor coincide con tu búsqueda.'
-                                : 'No tienes servidores con TBot donde seas administrador o dueño.'
+                                ? t('dashboard.search_no_results')
+                                : t('dashboard.no_servers_desc')
                             }
                         </p>
                         {!search && (
@@ -279,7 +282,7 @@ export default function Dashboard() {
                                 className="btn btn-primary"
                                 style={{ marginTop: '1rem' }}
                             >
-                                <Plus size={16} /> Añadir TBot a un servidor
+                                <Plus size={16} /> {t('dashboard.add_bot_btn')}
                             </a>
                         )}
                     </div>
@@ -296,7 +299,7 @@ export default function Dashboard() {
                         <div className="add-server-btn__icon">
                             <Plus size={22} />
                         </div>
-                        <span>Añadir TBot a otro servidor</span>
+                        <span>{t('dashboard.add_to_another')}</span>
                     </a>
                 </div>
             </div>
@@ -306,51 +309,50 @@ export default function Dashboard() {
                 <div className="modal-overlay" onClick={() => setShowUpgradeModal(false)}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
-                            <h3>Elige tu plan Pro</h3>
+                            <h3>{t('dashboard.modal.title')}</h3>
                             <button className="modal-close" onClick={() => setShowUpgradeModal(false)}>×</button>
                         </div>
                         <div className="modal-body">
                             <div className="upgrade-options">
                                 <div className="upgrade-option" onClick={() => handleUpgradeClick('monthly')}>
                                     <div className="upgrade-option__header">
-                                        <h4>Plan Mensual</h4>
+                                        <h4>{t('dashboard.modal.monthly')}</h4>
                                         <div className="upgrade-option__price">
                                             <span className="price">€3.99</span>
                                             <span className="period">/mes</span>
                                         </div>
                                     </div>
                                     <div className="upgrade-option__features">
-                                        <div className="feature-item">✓ Paneles de tickets ilimitados</div>
-                                        <div className="feature-item">✓ Arrival Studio desbloqueado</div>
-                                        <div className="feature-item">✓ Canales de voz dinámicos</div>
-                                        <div className="feature-item">✓ Soporte prioritario</div>
+                                        <div className="feature-item">✓ {t('dashboard.modal.features.tickets')}</div>
+                                        <div className="feature-item">✓ {t('dashboard.modal.features.arrival')}</div>
+                                        <div className="feature-item">✓ {t('dashboard.modal.features.voice')}</div>
+                                        <div className="feature-item">✓ {t('dashboard.modal.features.support')}</div>
                                     </div>
-                                    <button className="btn btn-primary upgrade-btn">Elegir Mensual</button>
+                                    <button className="btn btn-primary upgrade-btn">{t('dashboard.modal.choose_monthly')}</button>
                                 </div>
                                 
-                                <div className="upgrade-option upgrade-option--annual">
-                                    <div className="upgrade-option__badge">MEJOR VALOR</div>
+                                <div className="upgrade-option upgrade-option--annual" onClick={() => handleUpgradeClick('annual')}>
+                                    <div className="upgrade-option__badge">{t('dashboard.modal.best_value')}</div>
                                     <div className="upgrade-option__header">
-                                        <h4>Plan Anual</h4>
+                                        <h4>{t('dashboard.modal.annual')}</h4>
                                         <div className="upgrade-option__price">
                                             <span className="price">€2.99</span>
                                             <span className="period">/mes</span>
                                         </div>
                                     </div>
                                     <div className="upgrade-option__savings">
-                                        <span className="savings-badge">Ahorra un 25% al año</span>
+                                        <span className="savings-badge">{t('dashboard.modal.save_annual')}</span>
                                     </div>
                                     <div className="upgrade-option__features">
-                                        <div className="feature-item">✓ Todo lo del plan mensual</div>
-                                        <div className="feature-item">✓ Ahorro de €12 anuales</div>
-                                        <div className="feature-item">✓ Funciones exclusivas</div>
-                                        <div className="feature-item">✓ Soporte VIP</div>
+                                        <div className="feature-item">✓ {t('dashboard.modal.features.all_monthly')}</div>
+                                        <div className="feature-item">✓ {t('dashboard.modal.features.save_12')}</div>
+                                        <div className="feature-item">✓ {t('dashboard.modal.features.exclusive')}</div>
+                                        <div className="feature-item">✓ {t('dashboard.modal.features.vip')}</div>
                                     </div>
                                     <button 
                                         className="btn btn-primary upgrade-btn upgrade-btn--annual"
-                                        onClick={() => handleUpgradeClick('annual')}
                                     >
-                                        Elegir Anual
+                                        {t('dashboard.modal.choose_annual')}
                                     </button>
                                 </div>
                             </div>
