@@ -316,3 +316,36 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Modal Channel Selector Styles */
+.channel-select-item {
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.channel-select-item:hover {
+    background: rgba(88, 101, 242, 0.1) !important;
+    color: var(--blurple-light) !important;
+    border-color: rgba(88, 101, 242, 0.2);
+}
+
+.channel-select-item:active {
+    transform: scale(0.98);
+}
+
+.modal-content--sm {
+    max-width: 450px !important;
+}
+
+.channel-select-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.channel-select-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.channel-select-list::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+}

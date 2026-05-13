@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { 
     Plus, Trash2, Calendar, Gift, Users, Shield, 
     Bell, Image as ImageIcon, Link as LinkIcon, 
-    Info, Clock, Save, X, Loader2, Sparkles, ChevronDown, Settings, Globe
+    Info, Clock, Save, X, Loader2, Sparkles, ChevronDown, Settings, Globe, Search, Hash
 } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import api from '../utils/api'
@@ -14,6 +14,14 @@ export default function GiveawaysConfig({ guildId, plan }) {
     const [showForm, setShowForm] = useState(false)
     const [saving, setSaving] = useState(false)
     const [activeSection, setActiveSection] = useState('basic')
+    
+    // Announce Modal States
+    const [showAnnounceModal, setShowAnnounceModal] = useState(false)
+    const [channels, setChannels] = useState([])
+    const [loadingChannels, setLoadingChannels] = useState(false)
+    const [channelSearch, setChannelSearch] = useState('')
+    const [selectedGiveaway, setSelectedGiveaway] = useState(null)
+    const [announcing, setAnnouncing] = useState(false)
 
     const [form, setForm] = useState({
         host_name: '',
@@ -46,9 +54,42 @@ export default function GiveawaysConfig({ guildId, plan }) {
         }
     }
 
+    const fetchChannels = async () => {
+        setLoadingChannels(true)
+        try {
+            const res = await api.get(`/servers/${guildId}/channels`)
+            // Filtrar solo canales de texto (tipo 0)
+            setChannels(res.data.filter(c => c.type === 0 || c.type === 5))
+        } catch (e) {
+            console.error("Error fetching channels", e)
+        } finally {
+            setLoadingChannels(false)
+        }
+    }
+
     useEffect(() => {
         fetchGiveaways()
     }, [guildId])
+
+    const handleOpenAnnounce = (giveaway) => {
+        setSelectedGiveaway(giveaway)
+        setShowAnnounceModal(true)
+        if (channels.length === 0) fetchChannels()
+    }
+
+    const handleConfirmAnnounce = async (channelId) => {
+        setAnnouncing(true)
+        try {
+            await api.post(`/giveaways/${selectedGiveaway._id}/announce`, { channel_id: channelId })
+            alert("¡Sorteo anunciado con éxito en Discord!")
+            setShowAnnounceModal(false)
+            fetchGiveaways()
+        } catch (e) {
+            alert("Error al anunciar el sorteo.")
+        } finally {
+            setAnnouncing(false)
+        }
+    }
 
     const handleAddPrize = () => {
         setForm({
@@ -69,28 +110,14 @@ export default function GiveawaysConfig({ guildId, plan }) {
         })
     }
 
-    const handleAnnounce = async (giveawayId) => {
-        const channelId = prompt("Introduce el ID del canal de Discord donde quieres anunciar el sorteo:")
-        if (!channelId) return
-
-        try {
-            await api.post(`/giveaways/${giveawayId}/announce`, { channel_id: channelId })
-            alert("¡Sorteo anunciado con éxito en Discord!")
-        } catch (e) {
-            alert("Error al anunciar el sorteo. Verifica el ID del canal y los permisos del bot.")
-        }
-    }
-
     const handleSave = async () => {
         setSaving(true)
         try {
-            // Validaciones básicas antes de enviar
             if (!form.title || !form.end_date || form.prizes.some(p => !p.name)) {
                 alert("Por favor rellena el título, la fecha de fin y al menos un premio.")
                 setSaving(false)
                 return
             }
-
             await api.post(`/servers/${guildId}/giveaways`, form)
             setShowForm(false)
             fetchGiveaways()
@@ -100,6 +127,10 @@ export default function GiveawaysConfig({ guildId, plan }) {
             setSaving(false)
         }
     }
+
+    const filteredChannels = channels.filter(c => 
+        c.name.toLowerCase().includes(channelSearch.toLowerCase())
+    )
 
     if (loading) return <div className="mod-loading"><Loader2 className="spin" /> {t('common.loading')}</div>
 
@@ -118,7 +149,6 @@ export default function GiveawaysConfig({ guildId, plan }) {
 
                 {showForm ? (
                     <div className="giveaway-form page-enter">
-                        {/* Tabs del formulario */}
                         <div className="as-tabs" style={{ marginBottom: '1.5rem' }}>
                             <button className={`as-tab ${activeSection === 'basic' ? 'as-tab--active' : ''}`} onClick={() => setActiveSection('basic')}>
                                 <Info size={14} /> Principal
@@ -164,7 +194,6 @@ export default function GiveawaysConfig({ guildId, plan }) {
                                             <input type="datetime-local" className="config-input" value={form.end_date} onChange={e => setForm({...form, end_date: e.target.value})} />
                                         </div>
                                     </div>
-                                    <p className="field-help" style={{ marginTop: '0.5rem' }}>El sorteo se activará automáticamente en la fecha de inicio.</p>
                                 </div>
 
                                 <div className="form-section">
@@ -276,10 +305,6 @@ export default function GiveawaysConfig({ guildId, plan }) {
                                         <div className={`sc__module-toggle ${form.require_claim ? 'sc__module-toggle--on' : ''}`} onClick={() => setForm({...form, require_claim: !form.require_claim})} />
                                     </div>
                                 </div>
-                                <div className="form-field" style={{ marginTop: '1rem' }}>
-                                    <label>Tiempo para reclamar (horas)</label>
-                                    <input type="number" className="config-input" value={form.claim_expiration_hours} onChange={e => setForm({...form, claim_expiration_hours: parseInt(e.target.value)})} min={1} max={168} />
-                                </div>
                             </div>
                         )}
 
@@ -313,7 +338,7 @@ export default function GiveawaysConfig({ guildId, plan }) {
                                         <div className="panel-item__actions" style={{ display: 'flex', gap: '0.5rem' }}>
                                             <button 
                                                 className="btn btn-primary btn-xs"
-                                                onClick={() => handleAnnounce(g._id)}
+                                                onClick={() => handleOpenAnnounce(g)}
                                                 title="Anunciar en Discord"
                                             >
                                                 <Bell size={14} /> Anunciar
@@ -327,6 +352,63 @@ export default function GiveawaysConfig({ guildId, plan }) {
                     </div>
                 )}
             </div>
+
+            {/* Modal de Anuncio */}
+            {showAnnounceModal && (
+                <div className="modal-overlay" onClick={() => setShowAnnounceModal(false)}>
+                    <div className="modal-content modal-content--sm" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3><Bell size={18} /> Anunciar Sorteo</h3>
+                            <button className="modal-close" onClick={() => setShowAnnounceModal(false)}><X size={20} /></button>
+                        </div>
+                        <div className="modal-body">
+                            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+                                Selecciona el canal donde quieres publicar el anuncio del sorteo <b>{selectedGiveaway?.title}</b>.
+                            </p>
+                            
+                            <div className="dashboard__search" style={{ marginBottom: '1rem', width: '100%' }}>
+                                <Search size={16} />
+                                <input 
+                                    type="text" 
+                                    className="dashboard__search-input" 
+                                    placeholder="Buscar canal..." 
+                                    value={channelSearch}
+                                    onChange={e => setChannelSearch(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="channel-select-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                {loadingChannels ? (
+                                    <div style={{ textAlign: 'center', padding: '2rem' }}><Loader2 className="spin" /></div>
+                                ) : filteredChannels.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>No se encontraron canales.</div>
+                                ) : (
+                                    filteredChannels.map(channel => (
+                                        <div 
+                                            key={channel.id} 
+                                            className="channel-select-item"
+                                            onClick={() => handleConfirmAnnounce(channel.id)}
+                                            style={{ 
+                                                padding: '0.75rem', 
+                                                borderRadius: '8px', 
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.75rem',
+                                                transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            <Hash size={16} style={{ opacity: 0.5 }} />
+                                            <span>{channel.name}</span>
+                                            {announcing && <Loader2 size={14} className="spin" style={{ marginLeft: 'auto' }} />}
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
