@@ -9,6 +9,7 @@ import AdminStats from './pages/AdminStats'
 import AuthCallback from './pages/AuthCallback'
 import PaymentStatus from './pages/PaymentStatus'
 import PaymentRedirectModal from './components/PaymentRedirectModal'
+import { LanguageProvider } from './context/LanguageContext'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -58,8 +59,6 @@ function AppRoutes() {
     </>
   )
 }
-
-import { LanguageProvider } from './context/LanguageContext'
 
 function App() {
   return (
