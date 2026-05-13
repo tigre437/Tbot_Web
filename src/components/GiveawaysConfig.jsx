@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { 
     Plus, Trash2, Calendar, Gift, Users, Shield, 
     Bell, Image as ImageIcon, Link as LinkIcon, 
-    Info, Clock, Save, X, Loader2, Sparkles, ChevronDown
+    Info, Clock, Save, X, Loader2, Sparkles, ChevronDown, Settings
 } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import api from '../utils/api'
@@ -31,7 +31,7 @@ export default function GiveawaysConfig({ guildId, plan }) {
         dm_winners: true,
         require_claim: true,
         claim_expiration_hours: 24,
-        signup_mode: False,
+        signup_mode: false,
         webhook_url: ''
     })
 
