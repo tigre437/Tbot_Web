@@ -1207,6 +1207,15 @@ function AutorolesConfig({ guildId, roles, channels, plan }) {
     const [addBtnRole, setAddBtnRole] = useState('')
     const [addBtnLabel, setAddBtnLabel] = useState('')
     const [addBtnSaving, setAddBtnSaving] = useState(false)
+    const [deleteBtnPanel, setDeleteBtnPanel] = useState(null)
+    const [deleteBtnRole, setDeleteBtnRole] = useState(null)
+    const [deleteBtnSaving, setDeleteBtnSaving] = useState(false)
+    const [editBtnPanel, setEditBtnPanel] = useState(null)
+    const [editBtnRole, setEditBtnRole] = useState(null)
+    const [editBtnLabel, setEditBtnLabel] = useState('')
+    const [editBtnSaving, setEditBtnSaving] = useState(false)
+    const [hoverBtnPanel, setHoverBtnPanel] = useState(null)
+    const [hoverBtnRole, setHoverBtnRole] = useState(null)
 
     // --- Join ---
     const [joinRoles, setJoinRoles] = useState([])
@@ -1263,6 +1272,37 @@ function AutorolesConfig({ guildId, roles, channels, plan }) {
             loadPanels()
         } catch (e) { showToast(e.response?.data?.detail || 'Error al añadir botón.', 'error') }
         finally { setAddBtnSaving(false) }
+    }
+
+    const handleDeleteButton = async (msgId, roleId) => {
+        if (!confirm('¿Seguro que quieres eliminar este rol del panel?')) return
+        setDeleteBtnSaving(true)
+        try {
+            await api.delete(`/servers/${guildId}/autoroles/panels/${msgId}/buttons/${roleId}`)
+            showToast('✅ Rol eliminado del panel.')
+            setDeleteBtnPanel(null); setDeleteBtnRole(null)
+            loadPanels()
+        } catch (e) { showToast(e.response?.data?.detail || 'Error al eliminar el rol.', 'error') }
+        finally { setDeleteBtnSaving(false) }
+    }
+
+    const handleEditButton = (msgId, roleId, currentLabel) => {
+        setEditBtnPanel(msgId)
+        setEditBtnRole(roleId)
+        setEditBtnLabel(currentLabel || '')
+    }
+
+    const handleSaveButtonEdit = async () => {
+        setEditBtnSaving(true)
+        try {
+            await api.patch(`/servers/${guildId}/autoroles/panels/${editBtnPanel}/buttons/${editBtnRole}`, {
+                button_label: editBtnLabel
+            })
+            showToast('✅ Botón actualizado en Discord.')
+            setEditBtnPanel(null); setEditBtnRole(null); setEditBtnLabel('')
+            loadPanels()
+        } catch (e) { showToast(e.response?.data?.detail || 'Error al actualizar el botón.', 'error') }
+        finally { setEditBtnSaving(false) }
     }
 
     // Join CRUD
@@ -1333,11 +1373,100 @@ function AutorolesConfig({ guildId, roles, channels, plan }) {
                                                     {p.buttons?.map(b => {
                                                         const role = roles.find(r => r.id === b.role_id)
                                                         const hex = colorToHex(role?.color)
+                                                        const isEditing = editBtnPanel === p.message_id && editBtnRole === b.role_id
+                                                        const isHovered = hoverBtnPanel === p.message_id && hoverBtnRole === b.role_id
                                                         return (
                                                             <span key={b.role_id} className="badge"
-                                                                style={{ fontSize: '0.62rem', background: hex ? `${hex}20` : 'rgba(87,242,135,0.12)', color: hex || 'var(--green)', border: `1px solid ${hex || 'var(--green)'}40` }}>
-                                                                <RoleDot color={role?.color} size={7} />
-                                                                &nbsp;{b.label || b.role_name}
+                                                                style={{ 
+                                                                    fontSize: '0.62rem', 
+                                                                    background: hex ? `${hex}20` : 'rgba(87,242,135,0.12)', 
+                                                                    color: hex || 'var(--green)', 
+                                                                    border: `1px solid ${hex || 'var(--green)'}40`,
+                                                                    position: 'relative',
+                                                                    paddingRight: ((deleteBtnPanel === p.message_id && deleteBtnRole === b.role_id) || isEditing || isHovered) ? '2.5rem' : '0.5rem',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onMouseEnter={() => { if (!isEditing) { setHoverBtnPanel(p.message_id); setHoverBtnRole(b.role_id) } }}
+                                                                onMouseLeave={() => { if (!isEditing) { setHoverBtnPanel(null); setHoverBtnRole(null) } }}
+                                                            >
+                                                                {isEditing ? (
+                                                                    <input
+                                                                        type="text"
+                                                                        className="config-input"
+                                                                        style={{ 
+                                                                            fontSize: '0.62rem',
+                                                                            padding: '2px 4px',
+                                                                            width: '80px',
+                                                                            background: 'transparent',
+                                                                            border: '1px solid var(--blurple-light)',
+                                                                            color: hex || 'var(--green)'
+                                                                        }}
+                                                                        value={editBtnLabel}
+                                                                        onChange={e => setEditBtnLabel(e.target.value)}
+                                                                        onClick={e => e.stopPropagation()}
+                                                                        onKeyDown={e => {
+                                                                            if (e.key === 'Enter') {
+                                                                                e.preventDefault()
+                                                                                handleSaveButtonEdit()
+                                                                            } else if (e.key === 'Escape') {
+                                                                                setEditBtnPanel(null)
+                                                                                setEditBtnRole(null)
+                                                                                setEditBtnLabel('')
+                                                                            }
+                                                                        }}
+                                                                        autoFocus
+                                                                    />
+                                                                ) : (
+                                                                    <>
+                                                                        <RoleDot color={role?.color} size={7} />
+                                                                        &nbsp;{b.label || b.role_name}
+                                                                    </>
+                                                                )}
+                                                                {isHovered && !isEditing && (
+                                                                    <>
+                                                                        <span style={{ 
+                                                                            position: 'absolute', 
+                                                                            right: '20px', 
+                                                                            top: '50%', 
+                                                                            transform: 'translateY(-50%)',
+                                                                            color: 'var(--blurple-light)',
+                                                                            fontSize: '0.7rem',
+                                                                            cursor: 'pointer'
+                                                                        }}
+                                                                        onClick={e => { e.stopPropagation(); handleEditButton(p.message_id, b.role_id, b.label || b.role_name) }}
+                                                                        >
+                                                                            <Pencil size={8} />
+                                                                        </span>
+                                                                        <span style={{ 
+                                                                            position: 'absolute', 
+                                                                            right: '4px', 
+                                                                            top: '50%', 
+                                                                            transform: 'translateY(-50%)',
+                                                                            color: 'var(--red)',
+                                                                            fontSize: '0.7rem',
+                                                                            cursor: 'pointer'
+                                                                        }}
+                                                                        onClick={e => { e.stopPropagation(); handleDeleteButton(p.message_id, b.role_id) }}
+                                                                        >
+                                                                            {deleteBtnSaving ? <Loader2 size={8} className="spin" /> : '✕'}
+                                                                        </span>
+                                                                    </>
+                                                                )}
+                                                                {isEditing && (
+                                                                    <span style={{ 
+                                                                        position: 'absolute', 
+                                                                        right: '4px', 
+                                                                        top: '50%', 
+                                                                        transform: 'translateY(-50%)',
+                                                                        color: 'var(--green)',
+                                                                        fontSize: '0.7rem',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={e => { e.stopPropagation(); handleSaveButtonEdit() }}
+                                                                    >
+                                                                        {editBtnSaving ? <Loader2 size={8} className="spin" /> : '✓'}
+                                                                    </span>
+                                                                )}
                                                             </span>
                                                         )
                                                     })}
