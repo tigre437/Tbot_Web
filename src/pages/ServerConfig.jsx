@@ -1439,7 +1439,7 @@ function AutorolesConfig({ guildId, roles, channels, plan }) {
                                                                         </span>
                                                                         <span style={{ 
                                                                             position: 'absolute', 
-                                                                            right: '12px', 
+                                                                            right: '6px', 
                                                                             top: '50%', 
                                                                             transform: 'translateY(-50%)',
                                                                             color: 'var(--red)',
