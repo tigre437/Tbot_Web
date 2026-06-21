@@ -267,7 +267,7 @@ export const es = {
         hint: "Este embed se envía dentro del canal del ticket al abrirlo.",
         preview: "Vista previa",
         placeholder: "El embed aparecerá aquí...",
-        save: "Guardar embed",
+        save: "Actualizar panel",
         saving: "Guardando..."
       }
     }

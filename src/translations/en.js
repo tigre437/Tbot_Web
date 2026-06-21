@@ -267,7 +267,7 @@ export const en = {
         hint: "This embed is sent inside the ticket channel when opened.",
         preview: "Preview",
         placeholder: "The embed will appear here...",
-        save: "Save embed",
+        save: "Update panel",
         saving: "Saving..."
       }
     }

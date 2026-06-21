@@ -333,6 +333,14 @@ function TranscriptsList({ guildId, panels = [] }) {
         window.open(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/transcripts/${id}`, '_blank')
     }
 
+    const filtered = transcripts.filter(tr => {
+        const matchesSearch = search === '' || 
+            tr.ticket_name?.toLowerCase().includes(search.toLowerCase()) ||
+            tr.author_id?.toString().includes(search)
+        const matchesPanel = filterPanel === '' || tr.panel_id === filterPanel
+        return matchesSearch && matchesPanel
+    })
+
     if (loading) return <div className="mod-loading"><Loader2 size={20} className="spin" /> {t('server_config.tickets.transcripts.loading')}</div>
 
     return (
@@ -501,11 +509,11 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
     const handleSaveEmbed = async (panelId) => {
         setEmbedSaving(true)
         try {
-            await api.patch(`/servers/${guildId}/tickets/${panelId}/message`, embedForm)
-            showToast('✅ Embed del ticket guardado.')
+            await api.patch(`/servers/${guildId}/tickets/${panelId}/panel-message`, embedForm)
+            showToast('✅ Panel actualizado en Discord.')
             setEditEmbedPanel(null)
             load()
-        } catch (e) { showToast(e.response?.data?.detail || 'Error al guardar.', 'error') }
+        } catch (e) { showToast(e.response?.data?.detail || 'Error al actualizar el panel.', 'error') }
         finally { setEmbedSaving(false) }
     }
 
