@@ -430,7 +430,8 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
     const [form, setForm] = useState({
         channel_id: '', titulo: '', descripcion: '', tipo: 'boton',
         category_id: '', color: '#5865F2', log_channel_id: '',
-        allowed_role_ids: [], mention_role_ids: [], image_url: '', footer_text: ''
+        allowed_role_ids: [], mention_role_ids: [], image_url: '', footer_text: '',
+        button_label: '', button_emoji: '', button_style: 3, options: []
     })
 
     // ── Close Request state ──
@@ -544,12 +545,19 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
             return showToast(`Has alcanzado el límite de ${MAX_FREE_LIMITS.TICKET_PANELS} panel en la versión gratuita.`, 'error')
         }
         if (!form.channel_id || !form.titulo) return showToast('Canal y título son obligatorios.', 'error')
+        if (form.tipo === 'dropdown' && (!form.options || form.options.length === 0)) {
+            return showToast('Debes añadir al menos una opción para el panel desplegable.', 'error')
+        }
         setSaving(true)
         try {
             await api.post(`/servers/${guildId}/tickets`, form)
             showToast('✅ Panel enviado a Discord y guardado.')
             setShowForm(false)
-            setForm({ channel_id: '', titulo: '', descripcion: '', tipo: 'boton', category_id: '', color: '#5865F2', log_channel_id: '', allowed_role_ids: [], mention_role_ids: [], image_url: '', footer_text: '' })
+            setForm({ 
+                channel_id: '', titulo: '', descripcion: '', tipo: 'boton', category_id: '', 
+                color: '#5865F2', log_channel_id: '', allowed_role_ids: [], mention_role_ids: [], 
+                image_url: '', footer_text: '', button_label: '', button_emoji: '', button_style: 3, options: [] 
+            })
             load()
         } catch (e) { showToast(e.response?.data?.detail || 'Error al crear el panel.', 'error') }
         finally { setSaving(false) }
@@ -862,12 +870,67 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                     </div>
                                 </div>
                                 <div className="form-field">
-                                    <label>Categoría de tickets *</label>
+                                    <label>Categoría de tickets por defecto *</label>
                                     <select className="config-select" value={form.category_id} onChange={e => setForm(p => ({ ...p, category_id: e.target.value }))}>
                                         <option value="">Selecciona categoría...</option>
                                         {categories.map(c => <option key={c.id} value={c.id}>📁 {c.name}</option>)}
                                     </select>
                                 </div>
+                                
+                                {form.tipo === 'boton' && (
+                                    <div className="form-field form-field--full" style={{ padding: '1rem', background: 'var(--bg-secondary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                                        <h5 style={{ marginBottom: '0.5rem' }}>Personalizar Botón</h5>
+                                        <div className="form-grid">
+                                            <div className="form-field">
+                                                <label>Texto del botón</label>
+                                                <input className="config-input" value={form.button_label} onChange={e => setForm(p => ({ ...p, button_label: e.target.value }))} placeholder="Ej: Abrir Ticket" />
+                                            </div>
+                                            <div className="form-field">
+                                                <label>Emoji del botón</label>
+                                                <input className="config-input" value={form.button_emoji} onChange={e => setForm(p => ({ ...p, button_emoji: e.target.value }))} placeholder="Ej: 🎫 o <:name:id>" />
+                                            </div>
+                                            <div className="form-field">
+                                                <label>Estilo del botón</label>
+                                                <select className="config-select" value={form.button_style} onChange={e => setForm(p => ({ ...p, button_style: parseInt(e.target.value) }))}>
+                                                    <option value={1}>Azul (Primary)</option>
+                                                    <option value={2}>Gris (Secondary)</option>
+                                                    <option value={3}>Verde (Success)</option>
+                                                    <option value={4}>Rojo (Danger)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {form.tipo === 'dropdown' && (
+                                    <div className="form-field form-field--full" style={{ padding: '1rem', background: 'var(--bg-secondary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                                        <h5 style={{ marginBottom: '0.5rem' }}>Opciones del Desplegable *</h5>
+                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: '1rem' }}>Añade las opciones que aparecerán en el menú desplegable.</p>
+                                        
+                                        {form.options.map((opt, i) => (
+                                            <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', alignItems: 'flex-start', background: 'rgba(0,0,0,0.1)', padding: '0.75rem', borderRadius: '6px' }}>
+                                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                        <input className="config-input" value={opt.label} onChange={e => { const newOpts = [...form.options]; newOpts[i].label = e.target.value; setForm(p => ({ ...p, options: newOpts })) }} placeholder="Nombre opción *" required />
+                                                        <input className="config-input" value={opt.emoji} onChange={e => { const newOpts = [...form.options]; newOpts[i].emoji = e.target.value; setForm(p => ({ ...p, options: newOpts })) }} placeholder="Emoji (opcional)" style={{ width: '120px' }} />
+                                                    </div>
+                                                    <input className="config-input" value={opt.description} onChange={e => { const newOpts = [...form.options]; newOpts[i].description = e.target.value; setForm(p => ({ ...p, options: newOpts })) }} placeholder="Descripción (opcional)" />
+                                                    <select className="config-select" value={opt.category_id || ''} onChange={e => { const newOpts = [...form.options]; newOpts[i].category_id = e.target.value; setForm(p => ({ ...p, options: newOpts })) }}>
+                                                        <option value="">Usar categoría por defecto</option>
+                                                        {categories.map(c => <option key={c.id} value={c.id}>📁 {c.name}</option>)}
+                                                    </select>
+                                                </div>
+                                                <button type="button" className="btn btn-secondary btn-sm" onClick={() => setForm(p => ({ ...p, options: p.options.filter((_, idx) => idx !== i) }))}>
+                                                    <Trash2 size={16} style={{ color: 'var(--red)' }} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        
+                                        <button type="button" className="btn btn-secondary btn-sm" style={{ marginTop: '0.5rem' }} onClick={() => setForm(p => ({ ...p, options: [...p.options, { label: '', value: `opt_${Date.now()}_${p.options.length}`, description: '', emoji: '', category_id: '' }] }))}>
+                                            <Plus size={14} /> Añadir Opción
+                                        </button>
+                                    </div>
+                                )}
                                 <div className="form-field form-field--full">
                                     <div className="form-field__label-row">
                                         <label>Descripción del panel</label>
