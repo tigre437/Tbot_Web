@@ -1383,7 +1383,7 @@ function AutorolesConfig({ guildId, roles, channels, plan }) {
                                                                     color: hex || 'var(--green)', 
                                                                     border: `1px solid ${hex || 'var(--green)'}40`,
                                                                     position: 'relative',
-                                                                    paddingRight: ((deleteBtnPanel === p.message_id && deleteBtnRole === b.role_id) || isEditing || isHovered) ? '2.5rem' : '0.5rem',
+                                                                    paddingRight: (deleteBtnPanel === p.message_id && deleteBtnRole === b.role_id) ? '2.5rem' : (isEditing ? '1.5rem' : (isHovered ? '2.5rem' : '0.5rem')),
                                                                     cursor: 'pointer'
                                                                 }}
                                                                 onMouseEnter={() => { if (!isEditing) { setHoverBtnPanel(p.message_id); setHoverBtnRole(b.role_id) } }}
@@ -1439,7 +1439,7 @@ function AutorolesConfig({ guildId, roles, channels, plan }) {
                                                                         </span>
                                                                         <span style={{ 
                                                                             position: 'absolute', 
-                                                                            right: '4px', 
+                                                                            right: '12px', 
                                                                             top: '50%', 
                                                                             transform: 'translateY(-50%)',
                                                                             color: 'var(--red)',
@@ -1455,7 +1455,7 @@ function AutorolesConfig({ guildId, roles, channels, plan }) {
                                                                 {isEditing && (
                                                                     <span style={{ 
                                                                         position: 'absolute', 
-                                                                        right: '4px', 
+                                                                        right: '9px', 
                                                                         top: '50%', 
                                                                         transform: 'translateY(-50%)',
                                                                         color: 'var(--green)',
