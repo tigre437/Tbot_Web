@@ -18,7 +18,6 @@ const MODULES = [
     { id: 'autoroles', icon: Users, color: '#57F287', key: 'autoroles' },
     { id: 'welcome', icon: Bell, color: '#FEE75C', key: 'welcome' },
     { id: 'voice', icon: Mic2, color: '#EB459E', key: 'voice' },
-    { id: 'admin_chat', icon: MessageSquare, color: '#00d4ff', key: 'admin_chat' },
     { id: 'moderation', icon: Shield, color: '#FF6B6B', key: 'moderation' },
     { id: 'levels', icon: Star, color: '#f5c518', key: 'levels' },
     { id: 'giveaways', icon: Sparkles, color: '#FFD700', key: 'giveaways' },
@@ -2170,7 +2169,7 @@ export default function ServerConfig() {
     const [loading, setLoading] = useState(true)
     const [enabledModules, setEnabledModules] = useState({
         tickets: true, autoroles: true, welcome: true,
-        voice: true, admin_chat: true, moderation: false,
+        voice: true, moderation: false,
         giveaways: false
     })
 

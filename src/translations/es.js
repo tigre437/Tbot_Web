@@ -56,10 +56,6 @@ export const es = {
         title: "Canales de Voz",
         desc: "Canales de voz temporales que se crean y eliminan automáticamente según la demanda."
       },
-      chat_admin: {
-        title: "Chat Admin",
-        desc: "Canal de comunicación privado y seguro para tu equipo de administración."
-      },
       mod: {
         title: "Moderación",
         desc: "Limpia mensajes, silencia usuarios, gestiona permisos y mantén el orden en tu servidor."
@@ -204,7 +200,6 @@ export const es = {
       autoroles: { label: "Autoroles", desc: "Paneles de rol y entrada" },
       welcome: { label: "Bienvenida", desc: "Mensajes de bienvenida" },
       voice: { label: "Canales de Voz", desc: "Canales dinámicos" },
-      admin_chat: { label: "Admin Chat", desc: "Chat privado admins" },
       moderation: { label: "Moderación", desc: "Herramientas mod" },
       levels: { label: "Niveles & XP", desc: "Roles por tiempo" },
       giveaways: { label: "Sorteos", desc: "Gestión de giveaways" }

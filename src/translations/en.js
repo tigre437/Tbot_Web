@@ -56,10 +56,6 @@ export const en = {
         title: "Voice Channels",
         desc: "Temporary voice channels that are created and deleted automatically according to demand."
       },
-      chat_admin: {
-        title: "Admin Chat",
-        desc: "Private and secure communication channel for your management team."
-      },
       mod: {
         title: "Moderation",
         desc: "Clean messages, mute users, manage permissions and maintain order in your server."
@@ -208,8 +204,7 @@ export const en = {
       moderation: { label: "Moderation", desc: "Mod tools" },
       levels: { label: "Levels & XP", desc: "Roles by time" },
       giveaways: { label: "Giveaways", desc: "Giveaway management" }
-    },
-    pro_guard: {
+    },o_guard: {
       title: "Premium Feature",
       desc: "Upgrade to TBot Pro to unlock {feature} and take your server to the next level.",
       monthly: "Monthly",
