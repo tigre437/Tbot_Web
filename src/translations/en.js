@@ -203,7 +203,8 @@ export const en = {
       admin_chat: { label: "Admin Chat", desc: "Private admin chat" },
       moderation: { label: "Moderation", desc: "Mod tools" },
       levels: { label: "Levels & XP", desc: "Roles by time" },
-      giveaways: { label: "Giveaways", desc: "Giveaway management" }
+      giveaways: { label: "Giveaways", desc: "Giveaway management" },
+      honeypot: { label: "Honeypot", desc: "Antispam trap channel" }
     },o_guard: {
       title: "Premium Feature",
       desc: "Upgrade to TBot Pro to unlock {feature} and take your server to the next level.",

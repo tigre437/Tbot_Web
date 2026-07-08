@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import {
     ChevronLeft, ChevronDown, Ticket, Users, Bell, Mic2, MessageSquare, Shield,
     Save, ToggleLeft, ToggleRight, Plus, Trash2, Pencil,
-    CheckCircle2, AlertCircle, Loader2, Bot, Hash, X, Info, Clock, BookOpen, Star, Sparkles, Crown
+    CheckCircle2, AlertCircle, Loader2, Bot, Hash, X, Info, Clock, BookOpen, Star, Sparkles, Crown, ShieldAlert
 } from 'lucide-react'
 import api from '../utils/api'
 import logoImg from '../assets/logo256.png'
@@ -21,6 +21,7 @@ const MODULES = [
     { id: 'moderation', icon: Shield, color: '#FF6B6B', key: 'moderation' },
     { id: 'levels', icon: Star, color: '#f5c518', key: 'levels' },
     { id: 'giveaways', icon: Sparkles, color: '#FFD700', key: 'giveaways' },
+    { id: 'honeypot', icon: ShieldAlert, color: '#e67e22', key: 'honeypot' },
 ]
 
 const MAX_FREE_LIMITS = {
@@ -2133,6 +2134,214 @@ function LevelsConfig({ guildId, channels, roles, plan }) {
     )
 }
 
+// ─── HONEYPOT CONFIG ─────────────────────────────────────────────────────────
+function HoneypotConfig({ guildId, channels, roles }) {
+    const { t } = useLanguage()
+    const [config, setConfig] = useState({
+        enabled: false,
+        channel_id: '',
+        log_channel_id: '',
+        whitelist_role_ids: [],
+        embed: {
+            title: '⚠️ CANAL HONEYPOT',
+            description: 'Este canal es una trampa antispam. Cualquier mensaje enviado aquí resultará en un **BAN PERMANENTE** sin excepciones.',
+            color: '#FF0000',
+            image_url: '',
+            thumbnail_url: '',
+            footer_text: 'Protegido por TBot Antispam',
+            footer_icon: ''
+        }
+    })
+    const [loading, setLoading] = useState(true)
+    const [saving, setSaving] = useState(false)
+    const [sending, setSending] = useState(false)
+    const [toast, showToast] = useToast()
+    const textChannels = channels?.text || []
+
+    useEffect(() => {
+        api.get(`/servers/${guildId}/honeypot`)
+            .then(res => {
+                if (res.data && Object.keys(res.data).length > 0) {
+                    setConfig(prev => ({ ...prev, ...res.data }))
+                }
+            })
+            .catch(() => {})
+            .finally(() => setLoading(false))
+    }, [guildId])
+
+    const handleSave = async () => {
+        setSaving(true)
+        try {
+            await api.post(`/servers/${guildId}/honeypot`, config)
+            showToast('✅ Configuración del honeypot guardada.')
+        } catch (e) {
+            showToast('Error al guardar.', 'error')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const handleSendWarning = async () => {
+        setSending(true)
+        try {
+            await api.post(`/servers/${guildId}/honeypot/send-warning`)
+            showToast('✅ Embed de advertencia enviado al canal.')
+        } catch (e) {
+            showToast(e.response?.data?.detail || 'Error al enviar advertencia.', 'error')
+        } finally {
+            setSending(false)
+        }
+    }
+
+    if (loading) return <div className="mod-loading"><Loader2 size={20} className="spin" /> Cargando...</div>
+
+    return (
+        <div className="mod-section">
+            <Toast toast={toast} />
+
+            <div className="mod-block">
+                <label className="config-toggle">
+                    <div>
+                        <span style={{ fontWeight: 600 }}>Activar Honeypot</span>
+                        <p className="mod-hint" style={{ margin: 0 }}>Banea automáticamente a los usuarios que escriban en el canal trampa.</p>
+                    </div>
+                    <button type="button" className={`toggle-btn ${config.enabled ? 'toggle-btn--on' : ''}`} onClick={() => setConfig(p => ({ ...p, enabled: !p.enabled }))}>
+                        {config.enabled ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
+                    </button>
+                </label>
+            </div>
+
+            <div className={`form-grid ${!config.enabled ? 'disabled-section' : ''}`}>
+                <div className="form-field form-field--full">
+                    <label>Canal Trampa (Honeypot)</label>
+                    <select className="config-select" value={config.channel_id} onChange={e => setConfig(p => ({ ...p, channel_id: e.target.value }))}>
+                        <option value="">Selecciona un canal...</option>
+                        {textChannels.map(c => <option key={c.id} value={c.id}># {c.name}</option>)}
+                    </select>
+                    <p className="mod-hint" style={{ marginTop: '0.2rem' }}>Cualquier usuario que escriba aquí será baneado. Recomiendo un canal visible pero donde pocos escriban.</p>
+                </div>
+                
+                <div className="form-field form-field--full">
+                    <label>Canal de Logs (Opcional)</label>
+                    <select className="config-select" value={config.log_channel_id} onChange={e => setConfig(p => ({ ...p, log_channel_id: e.target.value }))}>
+                        <option value="">Ninguno</option>
+                        {textChannels.map(c => <option key={c.id} value={c.id}># {c.name}</option>)}
+                    </select>
+                    <p className="mod-hint" style={{ marginTop: '0.2rem' }}>Recibe un aviso cada vez que alguien sea baneado por la trampa.</p>
+                </div>
+
+                <div className="form-field form-field--full">
+                    <label>Roles Inmunes (Whitelist)</label>
+                    <RoleMultiPicker roles={roles} selected={config.whitelist_role_ids} onChange={ids => setConfig(p => ({ ...p, whitelist_role_ids: ids }))} />
+                    <p className="mod-hint" style={{ marginTop: '0.2rem' }}>Estos roles no serán baneados si escriben en el canal trampa (Los Administradores son siempre inmunes).</p>
+                </div>
+            </div>
+
+            <div className={`mod-block ${!config.enabled ? 'disabled-section' : ''}`} style={{ marginTop: '1.5rem' }}>
+                <h4 className="config-panel__section-title">Embed de Advertencia</h4>
+                <p className="mod-hint">Personaliza el mensaje que informará a los usuarios sobre la trampa.</p>
+
+                <div className="embed-editor" style={{ marginTop: '1rem' }}>
+                    <div className="embed-editor__body">
+                        <div className="embed-editor__fields">
+                            <div className="form-grid">
+                                <div className="form-field">
+                                    <div className="form-field__label-row">
+                                        <label>Título</label>
+                                        <CharCounter current={(config.embed?.title || '').length} max={EMBED_LIMITS.title} />
+                                    </div>
+                                    <input className="config-input" value={config.embed?.title || ''} maxLength={EMBED_LIMITS.title}
+                                        onChange={e => setConfig(p => ({ ...p, embed: { ...p.embed, title: e.target.value } }))}
+                                        placeholder="Ej: CANAL TRAMPA" />
+                                </div>
+                                <div className="form-field">
+                                    <label>Color</label>
+                                    <div className="color-picker-wrap">
+                                        <input type="color" className="color-picker" value={config.embed?.color || '#FF0000'}
+                                            onChange={e => setConfig(p => ({ ...p, embed: { ...p.embed, color: e.target.value } }))} />
+                                        <span className="color-picker-value">{(config.embed?.color || '#FF0000').toUpperCase()}</span>
+                                    </div>
+                                </div>
+                                <div className="form-field form-field--full">
+                                    <div className="form-field__label-row">
+                                        <label>Descripción</label>
+                                        <CharCounter current={(config.embed?.description || '').length} max={EMBED_LIMITS.description} />
+                                    </div>
+                                    <textarea className="config-textarea" rows={4} value={config.embed?.description || ''} maxLength={EMBED_LIMITS.description}
+                                        onChange={e => setConfig(p => ({ ...p, embed: { ...p.embed, description: e.target.value } }))} />
+                                </div>
+                                <div className="form-field">
+                                    <label>URL Imagen</label>
+                                    <input className="config-input" value={config.embed?.image_url || ''}
+                                        onChange={e => setConfig(p => ({ ...p, embed: { ...p.embed, image_url: e.target.value } }))}
+                                        placeholder="https://..." />
+                                </div>
+                                <div className="form-field">
+                                    <label>URL Miniatura</label>
+                                    <input className="config-input" value={config.embed?.thumbnail_url || ''}
+                                        onChange={e => setConfig(p => ({ ...p, embed: { ...p.embed, thumbnail_url: e.target.value } }))}
+                                        placeholder="https://..." />
+                                </div>
+                                <div className="form-field">
+                                    <div className="form-field__label-row">
+                                        <label>Pie de página</label>
+                                        <CharCounter current={(config.embed?.footer_text || '').length} max={EMBED_LIMITS.footer} />
+                                    </div>
+                                    <input className="config-input" value={config.embed?.footer_text || ''} maxLength={EMBED_LIMITS.footer}
+                                        onChange={e => setConfig(p => ({ ...p, embed: { ...p.embed, footer_text: e.target.value } }))} />
+                                </div>
+                                <div className="form-field">
+                                    <label>Icono del pie</label>
+                                    <input className="config-input" value={config.embed?.footer_icon || ''}
+                                        onChange={e => setConfig(p => ({ ...p, embed: { ...p.embed, footer_icon: e.target.value } }))}
+                                        placeholder="https://..." />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Vista previa */}
+                        <div className="embed-preview">
+                            <p className="embed-preview__label">Vista previa</p>
+                            <div className="embed-preview__card" style={{ '--embed-color': config.embed?.color || '#FF0000' }}>
+                                {config.embed?.thumbnail_url && (
+                                    <img className="embed-preview__thumb" src={config.embed.thumbnail_url} alt="thumb" onError={e => e.target.style.display = 'none'} />
+                                )}
+                                {config.embed?.title && (
+                                    <div className="embed-preview__title">{config.embed.title}</div>
+                                )}
+                                {config.embed?.description && (
+                                    <div className="embed-preview__desc">{config.embed.description}</div>
+                                )}
+                                {config.embed?.image_url && (
+                                    <img className="embed-preview__img" src={config.embed.image_url} alt="embed img" onError={e => e.target.style.display = 'none'} />
+                                )}
+                                {config.embed?.footer_text && (
+                                    <div className="embed-preview__footer">
+                                        {config.embed?.footer_icon && (
+                                            <img src={config.embed.footer_icon} alt="" className="embed-preview__footer-icon" onError={e => e.target.style.display = 'none'} />
+                                        )}
+                                        {config.embed.footer_text}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="form-actions" style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+                    {saving ? <><Loader2 size={16} className="spin" /> Guardando...</> : <><Save size={16} /> Guardar Configuración</>}
+                </button>
+                <button className="btn btn-secondary" onClick={handleSendWarning} disabled={sending || !config.channel_id || !config.enabled}>
+                    {sending ? <><Loader2 size={16} className="spin" /> Enviando...</> : <><MessageSquare size={16} /> Enviar Advertencia</>}
+                </button>
+            </div>
+        </div>
+    )
+}
+
+
 // ─── GENERIC PLACEHOLDER ──────────────────────────────────────────────────────
 function GenericConfig({ module }) {
     return (
@@ -2154,6 +2363,7 @@ function ConfigRenderer({ moduleId, guildId, channels, roles, plan }) {
         case 'voice': return <VoiceConfig guildId={guildId} channels={channels} plan={plan} />
         case 'levels': return <LevelsConfig guildId={guildId} channels={channels} roles={roles} plan={plan} />
         case 'giveaways': return <GiveawaysConfig guildId={guildId} plan={plan} />
+        case 'honeypot': return <HoneypotConfig guildId={guildId} channels={channels} roles={roles} />
         default: return <GenericConfig module={mod} />
     }
 }

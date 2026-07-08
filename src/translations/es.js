@@ -202,7 +202,8 @@ export const es = {
       voice: { label: "Canales de Voz", desc: "Canales dinámicos" },
       moderation: { label: "Moderación", desc: "Herramientas mod" },
       levels: { label: "Niveles & XP", desc: "Roles por tiempo" },
-      giveaways: { label: "Sorteos", desc: "Gestión de giveaways" }
+      giveaways: { label: "Sorteos", desc: "Gestión de giveaways" },
+      honeypot: { label: "Honeypot", desc: "Canal trampa antispam" }
     },
     pro_guard: {
       title: "Función Premium",
