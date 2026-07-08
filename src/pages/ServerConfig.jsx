@@ -2209,6 +2209,15 @@ function HoneypotConfig({ guildId, channels, roles }) {
                         {config.enabled ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
                     </button>
                 </label>
+                
+                {config.enabled && (
+                    <div style={{ marginTop: '1rem', padding: '0.8rem', background: 'rgba(235, 69, 158, 0.1)', border: '1px solid rgba(235, 69, 158, 0.3)', borderRadius: '6px', display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                        <Info size={18} style={{ color: 'var(--red)', flexShrink: 0, marginTop: '2px' }} />
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                            <strong style={{ color: 'var(--red)' }}>¡Importante!</strong> Para que el bot pueda banear, debes ir a la configuración de roles de tu servidor y asegurarte de que el rol <strong>TBot</strong> está colocado <strong>por encima</strong> del rol de los usuarios normales, y que tiene el permiso de <strong>Banear Miembros</strong> activado.
+                        </span>
+                    </div>
+                )}
             </div>
 
             <div className={`form-grid ${!config.enabled ? 'disabled-section' : ''}`}>
