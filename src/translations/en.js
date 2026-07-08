@@ -205,7 +205,8 @@ export const en = {
       levels: { label: "Levels & XP", desc: "Roles by time" },
       giveaways: { label: "Giveaways", desc: "Giveaway management" },
       honeypot: { label: "Honeypot", desc: "Antispam trap channel" }
-    },o_guard: {
+    },
+    pro_guard: {
       title: "Premium Feature",
       desc: "Upgrade to TBot Pro to unlock {feature} and take your server to the next level.",
       monthly: "Monthly",
