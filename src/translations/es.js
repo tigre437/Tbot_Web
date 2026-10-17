@@ -56,6 +56,10 @@ export const es = {
         title: "Canales de Voz",
         desc: "Canales de voz temporales que se crean y eliminan automáticamente según la demanda."
       },
+      chat_admin: {
+        title: "Administración por Chat",
+        desc: "Gestiona tu servidor directamente desde el chat con comandos rápidos e intuitivos."
+      },
       mod: {
         title: "Moderación",
         desc: "Limpia mensajes, silencia usuarios, gestiona permisos y mantén el orden en tu servidor."

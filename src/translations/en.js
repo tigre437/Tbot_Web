@@ -56,6 +56,10 @@ export const en = {
         title: "Voice Channels",
         desc: "Temporary voice channels that are created and deleted automatically according to demand."
       },
+      chat_admin: {
+        title: "Chat Administration",
+        desc: "Manage your server directly from the chat with fast, intuitive commands."
+      },
       mod: {
         title: "Moderation",
         desc: "Clean messages, mute users, manage permissions and maintain order in your server."

@@ -2353,6 +2353,7 @@ function HoneypotConfig({ guildId, channels, roles }) {
 
 // ─── GENERIC PLACEHOLDER ──────────────────────────────────────────────────────
 function GenericConfig({ module }) {
+    const { t } = useLanguage()
     return (
         <div className="config-panel config-panel--empty">
             <module.icon size={40} style={{ color: module.color, opacity: 0.4 }} />
