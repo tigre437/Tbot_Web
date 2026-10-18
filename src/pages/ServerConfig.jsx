@@ -984,6 +984,10 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                                         <option value="">Usar categoría por defecto</option>
                                                         {categories.map(c => <option key={c.id} value={c.id}>📁 {c.name}</option>)}
                                                     </select>
+                                                    <select className="config-select" value={opt.log_channel_id || ''} onChange={e => { const newOpts = [...form.options]; newOpts[i].log_channel_id = e.target.value; setForm(p => ({ ...p, options: newOpts })) }} title="Canal de logs para esta opción">
+                                                        <option value="">Usar canal de logs del panel</option>
+                                                        {textChannels.map(c => <option key={c.id} value={c.id}>📋 # {c.name}</option>)}
+                                                    </select>
                                                 </div>
                                                 <button type="button" className="btn btn-secondary btn-sm" onClick={() => setForm(p => ({ ...p, options: p.options.filter((_, idx) => idx !== i) }))}>
                                                     <Trash2 size={16} style={{ color: 'var(--red)' }} />
@@ -991,7 +995,7 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                             </div>
                                         ))}
                                         
-                                        <button type="button" className="btn btn-secondary btn-sm" style={{ marginTop: '0.5rem' }} onClick={() => setForm(p => ({ ...p, options: [...p.options, { label: '', value: `opt_${Date.now()}_${p.options.length}`, description: '', emoji: '', category_id: '' }] }))}>
+                                        <button type="button" className="btn btn-secondary btn-sm" style={{ marginTop: '0.5rem' }} onClick={() => setForm(p => ({ ...p, options: [...p.options, { label: '', value: `opt_${Date.now()}_${p.options.length}`, description: '', emoji: '', category_id: '', log_channel_id: '' }] }))}>
                                             <Plus size={14} /> Añadir Opción
                                         </button>
                                     </div>
