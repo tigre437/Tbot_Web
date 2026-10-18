@@ -121,6 +121,15 @@ function colorToHex(n) {
     return `#${n.toString(16).padStart(6, '0')}`
 }
 
+// ─── EMOJI VALIDATION ─────────────────────────────────────────────────────────
+const DISCORD_CUSTOM_EMOJI_RE = /^<a?:[A-Za-z0-9_]{2,32}:\d{15,22}>$/
+/** Discord component emojis must be a unicode emoji or a custom emoji in <:name:id> format. */
+function isValidDiscordEmoji(v) {
+    const s = (v || '').trim()
+    if (!s) return true
+    return DISCORD_CUSTOM_EMOJI_RE.test(s) || /\p{Extended_Pictographic}/u.test(s)
+}
+
 // ─── ROLE DOT ─────────────────────────────────────────────────────────────────
 /** Small colored circle representing a Discord role color */
 function RoleDot({ color, size = 9 }) {
@@ -556,9 +565,19 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
         if (form.tipo === 'dropdown' && (!form.options || form.options.length === 0)) {
             return showToast('Debes añadir al menos una opción para el panel desplegable.', 'error')
         }
+        if (!isValidDiscordEmoji(form.button_emoji)) {
+            return showToast('Emoji del botón no válido. Usa un emoji de Discord (🎫) o uno personalizado en formato <:nombre:id>.', 'error')
+        }
+        if ((form.options || []).some(o => !isValidDiscordEmoji(o.emoji))) {
+            return showToast('Hay un emoji de opción no válido. Usa emojis de Discord o formato <:nombre:id>.', 'error')
+        }
         setSaving(true)
         try {
-            await api.post(`/servers/${guildId}/tickets`, form)
+            await api.post(`/servers/${guildId}/tickets`, {
+                ...form,
+                button_emoji: (form.button_emoji || '').trim(),
+                options: (form.options || []).map(o => ({ ...o, emoji: (o.emoji || '').trim() }))
+            })
             showToast('✅ Panel enviado a Discord y guardado.')
             setShowForm(false)
             setForm({ 
