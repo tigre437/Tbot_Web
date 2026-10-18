@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, lazy, Suspense } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
     ChevronLeft, ChevronDown, Ticket, Users, Bell, Mic2, MessageSquare, Shield,
     Save, ToggleLeft, ToggleRight, Plus, Trash2, Pencil,
-    CheckCircle2, AlertCircle, Loader2, Bot, Hash, X, Info, Clock, BookOpen, Star, Sparkles, Crown, ShieldAlert
+    CheckCircle2, AlertCircle, Loader2, Bot, Hash, X, Info, Clock, BookOpen, Star, Sparkles, Crown, ShieldAlert, Smile
 } from 'lucide-react'
+const LazyEmojiPicker = lazy(() => import('emoji-picker-react'))
 import api from '../utils/api'
 import logoImg from '../assets/logo256.png'
 import ArrivalStudio from '../components/ArrivalStudio'
@@ -128,6 +129,43 @@ function isValidDiscordEmoji(v) {
     const s = (v || '').trim()
     if (!s) return true
     return DISCORD_CUSTOM_EMOJI_RE.test(s) || /\p{Extended_Pictographic}/u.test(s)
+}
+
+// ─── EMOJI PICKER FIELD ───────────────────────────────────────────────────────
+/** Text input with a WhatsApp-style emoji picker popover. Manual input still allowed for <:name:id> custom emojis. */
+function EmojiPickerField({ value, onChange, placeholder = 'Emoji (opcional)', style }) {
+    const [open, setOpen] = useState(false)
+    const wrapRef = useRef(null)
+    useEffect(() => {
+        if (!open) return
+        const onDocClick = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false) }
+        document.addEventListener('mousedown', onDocClick)
+        return () => document.removeEventListener('mousedown', onDocClick)
+    }, [open])
+    return (
+        <div className="emoji-field" ref={wrapRef} style={style}>
+            <input className="config-input" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
+            <button type="button" className="emoji-field__toggle" onClick={() => setOpen(o => !o)} title="Elegir emoji">
+                <Smile size={16} />
+            </button>
+            {open && (
+                <div className="emoji-field__picker">
+                    <Suspense fallback={<div className="emoji-field__loading"><Loader2 size={18} className="spin" /></div>}>
+                        <LazyEmojiPicker
+                            theme="dark"
+                            onEmojiClick={(d) => { onChange(d.emoji); setOpen(false) }}
+                            searchPlaceHolder="Buscar emoji"
+                            previewConfig={{ showPreview: false }}
+                            skinTonesDisabled
+                            lazyLoadEmojis
+                            width={320}
+                            height={380}
+                        />
+                    </Suspense>
+                </div>
+            )}
+        </div>
+    )
 }
 
 // ─── ROLE DOT ─────────────────────────────────────────────────────────────────
@@ -914,7 +952,7 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                             </div>
                                             <div className="form-field">
                                                 <label>Emoji del botón</label>
-                                                <input className="config-input" value={form.button_emoji} onChange={e => setForm(p => ({ ...p, button_emoji: e.target.value }))} placeholder="Ej: 🎫 o <:name:id>" />
+                                                <EmojiPickerField value={form.button_emoji} onChange={v => setForm(p => ({ ...p, button_emoji: v }))} placeholder="Ej: 🎫 o <:name:id>" />
                                             </div>
                                             <div className="form-field">
                                                 <label>Estilo del botón</label>
@@ -939,7 +977,7 @@ function TicketsConfig({ guildId, channels, roles, plan }) {
                                                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                                                         <input className="config-input" value={opt.label} onChange={e => { const newOpts = [...form.options]; newOpts[i].label = e.target.value; setForm(p => ({ ...p, options: newOpts })) }} placeholder="Nombre opción *" required />
-                                                        <input className="config-input" value={opt.emoji} onChange={e => { const newOpts = [...form.options]; newOpts[i].emoji = e.target.value; setForm(p => ({ ...p, options: newOpts })) }} placeholder="Emoji (opcional)" style={{ width: '120px' }} />
+                                                        <EmojiPickerField value={opt.emoji} onChange={v => { const newOpts = [...form.options]; newOpts[i].emoji = v; setForm(p => ({ ...p, options: newOpts })) }} style={{ width: '180px', flex: 'none' }} />
                                                     </div>
                                                     <input className="config-input" value={opt.description} onChange={e => { const newOpts = [...form.options]; newOpts[i].description = e.target.value; setForm(p => ({ ...p, options: newOpts })) }} placeholder="Descripción (opcional)" />
                                                     <select className="config-select" value={opt.category_id || ''} onChange={e => { const newOpts = [...form.options]; newOpts[i].category_id = e.target.value; setForm(p => ({ ...p, options: newOpts })) }}>
